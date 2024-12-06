@@ -62,7 +62,7 @@ associateCategoryCompanyRouter.post(
 );
 
 associateCategoryCompanyRouter.delete(
-  '/association/create',
+  '/association/delete',
   async (req: Request, res: Response) => {
     try {
       const { id_category, id_company } = req.body;

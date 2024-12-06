@@ -7,6 +7,7 @@ import { voteRouter } from './router/vote.router';
 import loginAdminRouter from './router/auth-admin.router';
 import companyRouter from './router/company.router';
 import categoryRouter from './router/category.router';
+import associateCategoryCompanyRouter from './router/association-category-company.router';
 
 const app: Application = express();
 
@@ -29,5 +30,6 @@ app.use('/api', voteRouter);
 app.use('/api', loginAdminRouter);
 app.use('/api', companyRouter);
 app.use('/api', categoryRouter);
+app.use('/api', associateCategoryCompanyRouter);
 
 export { app };

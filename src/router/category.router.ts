@@ -56,8 +56,8 @@ categoryRouter.post(
 
 categoryRouter.put('/category/update', async (req: Request, res: Response) => {
   try {
-    const company: Category = req.body;
-    const response = await updateCategoryService(company);
+    const category: Category = req.body;
+    const response = await updateCategoryService(category);
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

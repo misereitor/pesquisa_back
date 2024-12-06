@@ -28,7 +28,36 @@ export async function getAllCategory() {
   const client = await pool.connect();
   try {
     const query = {
-      text: 'SELECT * FROM category WHERE active = TRUE'
+      text: `
+SELECT
+    c.id,
+    c.name,
+    COALESCE(
+      JSON_AGG(
+          JSON_BUILD_OBJECT(
+              'id', co.id,
+              'trade_name', co.trade_name,
+              'company_name', co.company_name,
+              'cnpj', co.cnpj,
+              'associate', co.associate,
+              'active', co.active
+          )
+      ) FILTER (WHERE co.id IS NOT NULL),
+      '[]'::JSON
+    ) AS companies
+FROM
+    category c
+LEFT JOIN
+    category_company_association cca ON c.id = cca.id_category
+LEFT JOIN
+    company co ON cca.id_company = co.id AND co.active = TRUE
+WHERE
+    c.active = TRUE
+GROUP BY
+    c.id, c.name
+ORDER BY
+    c.name;
+      `
     };
 
     const { rows } = await client.query(query);
