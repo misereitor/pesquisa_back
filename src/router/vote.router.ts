@@ -3,11 +3,25 @@ import { UserVote } from '../model/user-vote';
 import {
   confirmVoteService,
   createVoteInCacheService,
+  getAllDataForVoteService,
   getAllVotesService
 } from '../services/votes.services';
 import { Vote } from '../model/votes';
 
 const voteRouter = Router();
+
+voteRouter.get(
+  '/voting/:id/get-all-data',
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const data = await getAllDataForVoteService(Number(id));
+      res.status(200).json({ success: true, data });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
 
 voteRouter.get('/voting/:id/get-all', async (req: Request, res: Response) => {
   try {

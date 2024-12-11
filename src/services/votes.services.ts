@@ -1,5 +1,7 @@
 import { UserVote } from '../model/user-vote';
 import { Vote, VotesConfirmed } from '../model/votes';
+import { getAllCategory } from '../repository/category';
+import { getAllCompany } from '../repository/company';
 import { updateUserVoteAfterVoteConfirm } from '../repository/user-vote';
 import {
   getVoteInCacheById,
@@ -10,6 +12,19 @@ import {
   deleteVoteInCache,
   getAllVotesConfirmedFromUser
 } from '../repository/votes';
+
+export async function getAllDataForVoteService(id: number) {
+  try {
+    const [companiesData, categoriesData, userVotesData] = await Promise.all([
+      getAllCompany(),
+      getAllCategory(),
+      getAllVotesInCache(id)
+    ]);
+    return { companiesData, categoriesData, userVotesData };
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+}
 
 export async function createVoteInCacheService(vote: Vote) {
   try {
