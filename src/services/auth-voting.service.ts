@@ -20,7 +20,7 @@ export async function checkUserRegistred(cpf: string) {
   try {
     const userVote = await getUserVoteFromCPF(cpf);
     if (userVote) {
-      if (userVote.confirmed_vote) throw new Error('CPF já confirmou o voto');
+      //if (userVote.confirmed_vote) throw new Error('CPF já confirmou o voto');
       const code = await createCode(userVote);
       await sendMessage(code, userVote.phone);
       await updateTrySendCode(userVote);
