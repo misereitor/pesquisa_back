@@ -54,17 +54,24 @@ export async function createCategoriesService(
 
 async function createCategoryExist(category: AssociationCompanyAndCategory[]) {
   const association: any[] = [];
-  for (const categ of category) {
-    if (!categ.company) continue;
-    const createCompanies = await createCompaniesService(categ.company);
-    if (!createCompanies) continue;
-    createCompanies.forEach((company) => {
-      association.push({
-        id_category: categ.id,
-        id_company: company.id
+
+  // Mapear cada categ para uma promessa
+  await Promise.all(
+    category.map(async (categ) => {
+      if (!categ.company) return;
+
+      const createCompanies = await createCompaniesService(categ.company);
+      if (!createCompanies) return;
+
+      createCompanies.forEach((company) => {
+        association.push({
+          id_category: categ.id,
+          id_company: company.id
+        });
       });
-    });
-  }
+    })
+  );
+
   if (association.length === 0) return;
   const queryCreateAssociation =
     createAssociationCategoriesBuildQuery(association);
@@ -75,18 +82,25 @@ async function createCategoryNotExist(
   category: AssociationCompanyAndCategory[]
 ) {
   const association: any[] = [];
-  for (const categ of category) {
-    const create = await createCategory(categ);
-    if (!categ.company) continue;
-    const createCompanies = await createCompaniesService(categ.company);
-    if (!createCompanies) continue;
-    createCompanies.forEach((company) => {
-      association.push({
-        id_category: create.id,
-        id_company: company.id
+
+  // Mapear cada categ para uma promessa
+  await Promise.all(
+    category.map(async (categ) => {
+      const create = await createCategory(categ);
+      if (!categ.company) return;
+
+      const createCompanies = await createCompaniesService(categ.company);
+      if (!createCompanies) return;
+
+      createCompanies.forEach((company) => {
+        association.push({
+          id_category: create.id,
+          id_company: company.id
+        });
       });
-    });
-  }
+    })
+  );
+
   if (association.length === 0) return;
   const queryCreateAssociation =
     createAssociationCategoriesBuildQuery(association);

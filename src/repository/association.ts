@@ -1,5 +1,8 @@
 import pool from '../config/db';
-import { AssociationCompanyAndCategory } from '../model/association-company-category';
+import {
+  AssociationCompanyAndCategory,
+  ImportCSV
+} from '../model/association-company-category';
 
 export async function createAssociationCategory(
   id_category: number,
@@ -21,6 +24,75 @@ export async function createAssociationCategory(
   } catch (e: any) {
     console.warn(e);
     throw new Error(e.message);
+  } finally {
+    client.release();
+  }
+}
+
+export async function importCSV(data: ImportCSV) {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Insere ou encontra a empresa
+    const companyQuery = `
+      INSERT INTO company (trade_name, company_name, cnpj, associate)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (company_name) DO UPDATE
+      SET trade_name = EXCLUDED.trade_name,
+          cnpj = EXCLUDED.cnpj,
+          associate = EXCLUDED.associate
+      RETURNING id;
+    `;
+    const companyValues = [
+      data.trade_name,
+      data.company_name,
+      data.cnpj,
+      data.associate
+    ];
+    const companyResult = await client.query(companyQuery, companyValues);
+    const companyId = companyResult.rows[0].id;
+
+    // Itera pelas categorias e cria associações
+    if (data.category && data.category.length > 0) {
+      for (const categoryName of data.category) {
+        // Insere ou encontra a categoria
+        const categoryQuery = `
+          INSERT INTO category (name)
+          VALUES ($1)
+          ON CONFLICT (name) DO NOTHING
+          RETURNING id;
+        `;
+        const categoryResult = await client.query(categoryQuery, [
+          categoryName
+        ]);
+
+        let categoryId: number;
+        if (categoryResult.rows.length > 0) {
+          categoryId = categoryResult.rows[0].id;
+        } else {
+          const selectCategoryQuery = `SELECT id FROM category WHERE name = $1`;
+          const selectCategoryResult = await client.query(selectCategoryQuery, [
+            categoryName
+          ]);
+          categoryId = selectCategoryResult.rows[0].id;
+        }
+
+        // Cria associação
+        const associationQuery = `
+          INSERT INTO category_company_association (id_category, id_company)
+          VALUES ($1, $2)
+          ON CONFLICT (id_category, id_company) DO NOTHING;
+        `;
+        await client.query(associationQuery, [categoryId, companyId]);
+      }
+    }
+
+    await client.query('COMMIT');
+  } catch (e: any) {
+    await client.query('ROLLBACK');
+    throw e;
   } finally {
     client.release();
   }

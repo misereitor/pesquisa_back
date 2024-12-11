@@ -64,12 +64,12 @@ export async function getCompanyById(id: number) {
   }
 }
 
-export async function getCompanyByCompany_name(company_name: string) {
+export async function getCompanyByTradeName(trade_name: string) {
   const client = await pool.connect();
   try {
     const query = {
-      text: 'SELECT * FROM company WHERE company_name like $1',
-      values: [company_name],
+      text: 'SELECT * FROM company WHERE trade_name like $1',
+      values: [trade_name],
       rowMode: 'single'
     };
     const { rows } = await client.query(query);

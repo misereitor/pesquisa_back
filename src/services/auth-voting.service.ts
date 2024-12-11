@@ -20,6 +20,7 @@ export async function checkUserRegistred(cpf: string) {
   try {
     const userVote = await getUserVoteFromCPF(cpf);
     if (userVote) {
+      if (userVote.confirmed_vote) throw new Error('CPF já confirmou o voto');
       const code = await createCode(userVote);
       await sendMessage(code, userVote.phone);
       await updateTrySendCode(userVote);
@@ -94,9 +95,9 @@ async function checksUserExistsAndDataIsTrue(user: UserVote) {
 export async function confirmCode(code: string, phone: string) {
   try {
     const valide = await valideCode(code, phone);
-    const gerateToken = createTokenUserVoting(phone);
     const deleteCode = await deleteCodeConfirmed(valide.id);
     const confirmUserCode = await updateUserVotePhoneConfirmed(phone);
+    const gerateToken = createTokenUserVoting(phone, confirmUserCode.id);
     await Promise.all([valide, gerateToken, deleteCode, confirmUserCode]);
     const login = {
       token: gerateToken,

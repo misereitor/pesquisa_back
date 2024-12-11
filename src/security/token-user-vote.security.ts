@@ -18,8 +18,8 @@ export function valideTokenUserVoteService(token: string | undefined) {
   }
 }
 
-export function createTokenUserVoting(phone: string) {
-  const token = JWT.sign({ phone }, SECRET_KEY_VOTING as string, {
+export function createTokenUserVoting(phone: string, id: number) {
+  const token = JWT.sign({ phone, id }, SECRET_KEY_VOTING as string, {
     expiresIn: '24h'
   });
   return token;

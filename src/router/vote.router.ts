@@ -12,7 +12,7 @@ const voteRouter = Router();
 voteRouter.get('/voting/:id/get-all', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const votes = getAllVotesService(Number(id));
+    const votes = await getAllVotesService(Number(id));
     res.status(200).json({ success: true, data: votes });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

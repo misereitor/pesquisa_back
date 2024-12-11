@@ -1,12 +1,11 @@
-import { AssociationCategoryAndCompany } from '../model/association-company-category';
+import { ImportCSV } from '../model/association-company-category';
 import {
   createAssociationCategory,
   getAllAssociation,
   getAssociationByCategoryId,
-  deleteAssociation
+  deleteAssociation,
+  importCSV
 } from '../repository/association';
-import { queryCuston } from '../repository/custom-query';
-import { createAssociationCategoriesBuildQuery } from '../util/query-builder';
 
 export async function createAssociationByCategoryService(
   id_category: number,
@@ -20,12 +19,13 @@ export async function createAssociationByCategoryService(
 }
 
 export async function createAssociationByCategoryArrayService(
-  association: AssociationCategoryAndCompany[]
+  association: ImportCSV[]
 ) {
   try {
-    const query = createAssociationCategoriesBuildQuery(association);
-    await queryCuston(query.text, []);
+    const promises = association.map(async (ass) => await importCSV(ass));
+    await Promise.all(promises);
   } catch (e: any) {
+    console.error('Erro ao processar array:', e.message);
     throw new Error(e.message);
   }
 }

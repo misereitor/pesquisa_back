@@ -5,7 +5,7 @@ import {
   disableCompany,
   enableCompany,
   getAllCompany,
-  getCompanyByCompany_name,
+  getCompanyByTradeName,
   getCompanyById,
   updateCompany
 } from '../repository/company';
@@ -14,8 +14,9 @@ import { createCompaniesBuildQuery } from '../util/query-builder';
 
 export async function createCompanyService(company: Company) {
   try {
-    if (company.cnpj.length > 1) company.cnpj = company.cnpj.replace(/\D/g, '');
-    const companyExist = await getCompanyByCompany_name(company.company_name);
+    if (company.cnpj && company.cnpj?.length > 1)
+      company.cnpj = company.cnpj?.replace(/\D/g, '');
+    const companyExist = await getCompanyByTradeName(company.trade_name);
     if (!companyExist) {
       return await createCompany(company);
     }
@@ -37,8 +38,8 @@ export async function createCompaniesService(company: Company[]) {
   const companies = await getAllCompany();
   try {
     for (let i = 0; i < company.length; i++) {
-      if (company[i].cnpj.length)
-        company[i].cnpj = company[i].cnpj.replace(/\D/g, '');
+      if (company[i].cnpj?.length)
+        company[i].cnpj = company[i].cnpj?.replace(/\D/g, '');
 
       const companyExistCompany = companies.find(
         (comp) => comp.company_name === company[i].company_name
@@ -90,7 +91,7 @@ export async function associateCompanyService(id: number, associate: boolean) {
 
 export async function updateCompanyService(company: Company) {
   try {
-    if (company.cnpj.length) company.cnpj = company.cnpj.replace(/\D/g, '');
+    if (company.cnpj?.length) company.cnpj = company.cnpj.replace(/\D/g, '');
     const update = await updateCompany(company);
     return update;
   } catch (e: any) {

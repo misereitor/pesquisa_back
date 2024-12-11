@@ -6,7 +6,7 @@ import {
   getAllAssociationService,
   getAssociationByCategoryIdService
 } from '../services/association-category-company.service';
-import { AssociationCategoryAndCompany } from '../model/association-company-category';
+import { ImportCSV } from '../model/association-company-category';
 
 const associateCategoryCompanyRouter = Router();
 
@@ -49,13 +49,14 @@ associateCategoryCompanyRouter.post(
 );
 
 associateCategoryCompanyRouter.post(
-  '/association/create-many',
+  '/import/create-many',
   async (req: Request, res: Response) => {
     try {
-      const association: AssociationCategoryAndCompany[] = req.body;
+      const association: ImportCSV[] = req.body;
       await createAssociationByCategoryArrayService(association);
       res.status(200).json({ success: true });
     } catch (error: any) {
+      console.log(error.message);
       res.status(500).json({ success: false, message: error.message });
     }
   }
