@@ -39,8 +39,8 @@ export async function importCSV(data: ImportCSV) {
     const companyQuery = `
       INSERT INTO company (trade_name, company_name, cnpj, associate)
       VALUES ($1, $2, $3, $4)
-      ON CONFLICT (company_name) DO UPDATE
-      SET trade_name = EXCLUDED.trade_name,
+      ON CONFLICT (trade_name) DO UPDATE
+      SET company_name = EXCLUDED.company_name,
           cnpj = EXCLUDED.cnpj,
           associate = EXCLUDED.associate
       RETURNING id;
