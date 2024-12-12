@@ -2,6 +2,7 @@ import { UserVote } from '../model/user-vote';
 import { Vote, VotesConfirmed } from '../model/votes';
 import { getAllCategory } from '../repository/category';
 import { getAllCompany } from '../repository/company';
+import { getAllDictionaryEntries } from '../repository/dictionary';
 import { updateUserVoteAfterVoteConfirm } from '../repository/user-vote';
 import {
   getVoteInCacheById,
@@ -15,12 +16,14 @@ import {
 
 export async function getAllDataForVoteService(id: number) {
   try {
-    const [companiesData, categoriesData, userVotesData] = await Promise.all([
-      getAllCompany(),
-      getAllCategory(),
-      getAllVotesInCache(id)
-    ]);
-    return { companiesData, categoriesData, userVotesData };
+    const [companiesData, categoriesData, userVotesData, dictionaryData] =
+      await Promise.all([
+        getAllCompany(),
+        getAllCategory(),
+        getAllVotesInCache(id),
+        getAllDictionaryEntries()
+      ]);
+    return { companiesData, categoriesData, userVotesData, dictionaryData };
   } catch (e: any) {
     throw new Error(e.message);
   }
