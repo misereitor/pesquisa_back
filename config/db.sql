@@ -87,7 +87,7 @@ CREATE TABLE
     FOREIGN KEY (id_company) REFERENCES company (id),
 		FOREIGN KEY (id_category) REFERENCES category (id),
     FOREIGN KEY (Id_user_vote) REFERENCES users_vote (id),
-    UNIQUE (id_category, id_user_vote)
+    CONSTRAINT unique_user_category_vote UNIQUE (id_user_vote, id_category)
 );
 
 CREATE TABLE
@@ -107,4 +107,19 @@ CREATE TABLE
     id SERIAL PRIMARY KEY,
     key_word TEXT NOT NULL UNIQUE,
     synonyms TEXT[] NOT NULL
+);
+
+CREATE TABLE 
+  IF NOT EXISTS voting_city (
+    id SERIAL PRIMARY KEY,
+    city VARCHAR NOT NULL UNIQUE,
+    total_votes INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS category_votes (
+    id SERIAL PRIMARY KEY,
+    id_category INT NOT NULL REFERENCES category(id),
+    id_company INT NOT NULL REFERENCES company(id),
+    total_votes INT NOT NULL DEFAULT 0
+    CONSTRAINT unique_category_company UNIQUE (id_category, id_company)
 );

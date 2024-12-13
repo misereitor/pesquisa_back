@@ -167,7 +167,7 @@ export async function updateUserVoteAfterVoteConfirm(
       text: `
       UPDATE users_vote
       SET 
-        confirmed_vote = true, date_vote = CURRENT_TIMESTAMP,
+        confirmed_vote = true, date_vote = CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo',
         percentage_vote = $2, votes = $3
       WHERE ID = $1
       `,

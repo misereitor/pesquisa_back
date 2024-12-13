@@ -4,6 +4,7 @@ import {
   confirmVoteService,
   createVoteInCacheService,
   getAllDataForVoteService,
+  getAllDataFromDashboard,
   getAllVotesService
 } from '../services/votes.services';
 import { Vote } from '../model/votes';
@@ -48,6 +49,15 @@ voteRouter.post('/voting/confirm-vote', async (req: Request, res: Response) => {
     const user: UserVote = req.body;
     await confirmVoteService(user);
     res.status(200).json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+voteRouter.get('/voting/dashboard', async (req: Request, res: Response) => {
+  try {
+    const data = await getAllDataFromDashboard();
+    res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

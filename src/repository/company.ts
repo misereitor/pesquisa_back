@@ -122,7 +122,6 @@ export async function updateCompany(company: Company) {
       rowMode: 'single'
     };
     const { rows } = await client.query(query);
-    console.log(query);
     return rows[0] as unknown as Company;
   } catch (e: any) {
     console.warn(e);
