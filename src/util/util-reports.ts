@@ -70,12 +70,7 @@ export const exportCSVCategoryReport = (categories: CategoryVotes[]) => {
   const csvData = categories.flatMap((category) => {
     const rows: string[][] = [];
 
-    rows.push([
-      category.category_name,
-      category.total_votes.toString(),
-      '',
-      ''
-    ]);
+    rows.push([category.category_name, category.total.toString(), '', '']);
 
     category.companies.forEach((company) => {
       rows.push(['', '', company.name, company.value.toString()]);

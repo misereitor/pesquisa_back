@@ -16,7 +16,7 @@ export async function getAllDataFromDashboard() {
   try {
     const [votesCategory, countVotes, usersVote, totalCity] = await Promise.all(
       [
-        getVotesByCategory(),
+        getAllDataReportCategory(),
         getCountVotesByUser(),
         getAllUserVote(),
         getTotalVotesByCity()
@@ -44,11 +44,9 @@ export async function getAllDataReportCategory() {
   try {
     const categories = await getVotesByCategory();
     const categoryTotal = categories.map((category) => {
-      let total_votes = 0;
-      category.companies.forEach(
-        (company) => (total_votes = total_votes + company.value)
-      );
-      category.total_votes = total_votes;
+      let total = 0;
+      category.companies.forEach((company) => (total = total + company.value));
+      category.total = total;
       return category;
     });
     return categoryTotal;
