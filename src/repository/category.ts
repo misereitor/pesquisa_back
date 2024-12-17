@@ -70,6 +70,25 @@ ORDER BY
   }
 }
 
+export async function getAllCategoryByReportGeral() {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: `
+      SELECT * FROM category ORDER BY name
+      `
+    };
+
+    const { rows } = await client.query(query);
+    return rows as unknown as Category[];
+  } catch (e: any) {
+    console.warn(e);
+    throw new Error(e.message);
+  } finally {
+    client.release();
+  }
+}
+
 export async function getCategoryById(id: number) {
   const client = await pool.connect();
   try {

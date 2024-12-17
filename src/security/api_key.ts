@@ -10,6 +10,13 @@ export const validateApiKey = (
   next: NextFunction
 ) => {
   try {
+    if (
+      req.path.split('/')[2] === 'reports' &&
+      req.path.split('/')[3] === 'download'
+    ) {
+      next();
+      return;
+    }
     const apiKey = req.header('X-API-KEY');
     if (!apiKey) {
       throw new Error('API key is missing');

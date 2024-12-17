@@ -73,7 +73,7 @@ export async function getAllUserAdmin() {
   const client = await pool.connect();
   try {
     const query = {
-      text: 'SELECT * FROM users_admin'
+      text: 'SELECT * FROM users_admin WHERE active = true'
     };
     const { rows } = await client.query(query);
     return rows as unknown as UserAdmin[];
@@ -103,12 +103,12 @@ export async function updateUserAdmin(user: UserAdmin) {
   }
 }
 
-export async function updateRoleUserAdmin(userAdmin: UserAdmin) {
+export async function updateRoleUserAdmin(id: number, role: string) {
   const client = await pool.connect();
   try {
     const query = {
       text: 'UPDATE users_admin SET role = $1 WHERE id = $2 RETURNING *',
-      values: [userAdmin.role, userAdmin.id],
+      values: [role, id],
       rowMode: 'single'
     };
     const { rows } = await client.query(query);
@@ -121,12 +121,12 @@ export async function updateRoleUserAdmin(userAdmin: UserAdmin) {
   }
 }
 
-export async function updatePasswordUserAdmin(userAdmin: UserAdmin) {
+export async function updatePasswordUserAdmin(id: number, password: string) {
   const client = await pool.connect();
   try {
     const query = {
       text: 'UPDATE users_admin SET password = $1 WHERE id = $2',
-      values: [userAdmin.password, userAdmin.id],
+      values: [password, id],
       rowMode: 'single'
     };
     await client.query(query);
@@ -142,7 +142,7 @@ export async function deleteUserAdminById(id: number) {
   const client = await pool.connect();
   try {
     const query = {
-      text: 'DELETE FROM users_admin WHERE id = ($1)',
+      text: 'UPDATE users_admin SET active = false WHERE id = $1',
       values: [id]
     };
     await client.query(query);

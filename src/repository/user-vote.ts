@@ -10,7 +10,7 @@ export async function createUserVote(user: UserVote) {
       INSERT INTO users_vote
       (name, phone, cpf, uf, city, last_ip, date_create)
         VALUES
-      ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP) RETURNING *
+      ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo') RETURNING *
       `,
       values: [
         user.name,
@@ -55,7 +55,7 @@ export async function getAllUserVote() {
   const client = await pool.connect();
   try {
     const query = {
-      text: 'SELECT * FROM users_vote'
+      text: 'SELECT * FROM users_vote ORDER BY name'
     };
     const { rows } = await client.query(query);
     return rows as unknown as UserVote[];

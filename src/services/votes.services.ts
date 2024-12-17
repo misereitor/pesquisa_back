@@ -3,10 +3,7 @@ import { Vote, VotesConfirmed } from '../model/votes';
 import { getAllCategory } from '../repository/category';
 import { getAllCompany } from '../repository/company';
 import { getAllDictionaryEntries } from '../repository/dictionary';
-import {
-  getAllUserVote,
-  updateUserVoteAfterVoteConfirm
-} from '../repository/user-vote';
+import { updateUserVoteAfterVoteConfirm } from '../repository/user-vote';
 import {
   getVoteInCacheById,
   updateVoteInCache,
@@ -16,10 +13,7 @@ import {
   deleteVoteInCache,
   getAllVotesConfirmedFromUser,
   batchInsertVotesFromVotes,
-  getVotesByCategory,
-  getCountVotesByUser,
-  incrementVoteForCity,
-  getTotalVotesByCity
+  incrementVoteForCity
 } from '../repository/votes';
 
 export async function getAllDataForVoteService(id: number) {
@@ -79,21 +73,5 @@ async function updateVotesUserVoteConfirmation(userVote: UserVote) {
     await incrementVoteForCity(userVote.city);
   } catch (e: any) {
     throw new Error(e.message);
-  }
-}
-
-export async function getAllDataFromDashboard() {
-  try {
-    const [votesCategory, countVotes, usersVote, totalCity] = await Promise.all(
-      [
-        getVotesByCategory(),
-        getCountVotesByUser(),
-        getAllUserVote(),
-        getTotalVotesByCity()
-      ]
-    );
-    return { votesCategory, countVotes, usersVote, totalCity };
-  } catch (error: any) {
-    throw new Error(error.message);
   }
 }

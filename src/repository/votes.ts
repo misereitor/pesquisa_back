@@ -293,7 +293,7 @@ export async function getTotalVotesByCity() {
   try {
     const query = {
       text: `
-        SELECT city, total_votes AS total FROM voting_city;
+        SELECT city, total_votes AS total FROM voting_city ORDER BY total_votes DESC;
       `
     };
     const { rows } = await client.query(query);

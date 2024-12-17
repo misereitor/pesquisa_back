@@ -27,6 +27,7 @@ export interface VotesConfirmed {
 
 export interface CategoryVotes {
   category_name: string;
+  total_votes: number;
   companies: CategoryVotesCompany[];
 }
 

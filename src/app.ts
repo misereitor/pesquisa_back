@@ -9,6 +9,8 @@ import companyRouter from './router/company.router';
 import categoryRouter from './router/category.router';
 import associateCategoryCompanyRouter from './router/association-category-company.router';
 import { dictionaryRouter } from './router/dictionary.router';
+import { reportsRouter } from './router/reports.router';
+import { userAdminRouter } from './router/user-admin.router';
 
 const app: Application = express();
 
@@ -33,5 +35,7 @@ app.use('/api', companyRouter);
 app.use('/api', categoryRouter);
 app.use('/api', associateCategoryCompanyRouter);
 app.use('/api', dictionaryRouter);
+app.use('/api', reportsRouter);
+app.use('/api', userAdminRouter);
 
 export { app };
