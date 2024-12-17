@@ -17,7 +17,12 @@ companyRouter.get('/company/get-all', async (req: Request, res: Response) => {
     const response = await getAllCompanyService();
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.statusCode) {
+      res
+        .status(error.statusCode)
+        .json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Erro interno' });
   }
 });
 
@@ -27,7 +32,12 @@ companyRouter.get('/company/get/:id', async (req: Request, res: Response) => {
     const response = await getCompanyByIdService(Number(id));
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.statusCode) {
+      res
+        .status(error.statusCode)
+        .json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Erro interno' });
   }
 });
 
@@ -37,7 +47,12 @@ companyRouter.post('/company/create', async (req: Request, res: Response) => {
     const response = await createCompanyService(company);
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.statusCode) {
+      res
+        .status(error.statusCode)
+        .json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Erro interno' });
   }
 });
 
@@ -49,7 +64,13 @@ companyRouter.post(
       const response = await createCompaniesService(companis);
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -60,7 +81,12 @@ companyRouter.put('/company/update', async (req: Request, res: Response) => {
     const response = await updateCompanyService(company);
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.statusCode) {
+      res
+        .status(error.statusCode)
+        .json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Erro interno' });
   }
 });
 
@@ -72,7 +98,13 @@ companyRouter.put(
       await associateCompanyService(id, associate);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -85,7 +117,13 @@ companyRouter.put(
       const response = await disableCompanyService(Number(id));
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );

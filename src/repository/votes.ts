@@ -20,9 +20,6 @@ export async function createVoteInCache(vote: Vote) {
       values: [vote.id_user_vote, vote.id_category, vote.id_company]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -39,9 +36,6 @@ export async function getAllVotesInCache(id_user_vote: number) {
     };
     const { rows } = await client.query(query);
     return rows as unknown as Vote[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -59,9 +53,6 @@ export async function getVoteInCacheById(vote: Vote) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as Vote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -77,9 +68,6 @@ export async function updateVoteInCache(vote: Vote) {
       values: [vote.id_user_vote, vote.id_category, vote.id_company]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -101,9 +89,6 @@ export async function confirmVote(id_user_vote: number) {
       values: [id_user_vote]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -119,9 +104,6 @@ export async function deleteVoteInCache(id_user_vote: number) {
       values: [id_user_vote]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -150,9 +132,6 @@ export async function getAllVotesConfirmedFromUser(id_user_vote: number) {
     };
     const { rows } = await client.query(query);
     return rows as unknown as VotesConfirmed[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -171,9 +150,6 @@ export async function incrementVoteForCity(city: string) {
       values: [city]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.error('Erro ao incrementar votos para a cidade:', e.message);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -222,9 +198,6 @@ export async function batchInsertVotesFromVotes(votes: VotesConfirmed[]) {
     ]);
 
     await client.query(query, values);
-  } catch (e: any) {
-    console.error('Erro ao realizar inserção em massa:', e.message);
-    throw e;
   } finally {
     client.release();
   }
@@ -258,9 +231,6 @@ export async function getVotesByCategory() {
     `;
     const { rows } = await client.query(query);
     return rows as unknown as CategoryVotes[];
-  } catch (e) {
-    console.error('Erro ao obter relatório por categoria:', e);
-    throw e;
   } finally {
     client.release();
   }
@@ -280,9 +250,6 @@ export async function getCountVotesByUser() {
     `;
     const { rows } = await client.query(query);
     return rows[0] as unknown as TotalCountForUser;
-  } catch (e) {
-    console.error('Erro ao obter relatório por categoria:', e);
-    throw e;
   } finally {
     client.release();
   }
@@ -298,9 +265,6 @@ export async function getTotalVotesByCity() {
     };
     const { rows } = await client.query(query);
     return rows as unknown as TotalCountForCity[];
-  } catch (e: any) {
-    console.error('Erro ao incrementar votos para a cidade:', e.message);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

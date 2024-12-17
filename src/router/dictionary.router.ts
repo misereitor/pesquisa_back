@@ -16,7 +16,13 @@ dictionaryRouter.get(
       const data = await getAllDictionaryEntriesService();
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -29,7 +35,13 @@ dictionaryRouter.post(
       const data = await insertDictionaryEntryService(dictionary);
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -42,7 +54,13 @@ dictionaryRouter.put(
       const data = await updateDictionaryEntryService(dictionary);
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -55,7 +73,13 @@ dictionaryRouter.delete(
       const data = await deleteDictionaryEntryService(key_word);
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );

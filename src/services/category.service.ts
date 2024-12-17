@@ -14,19 +14,15 @@ import { createAssociationCategoriesBuildQuery } from '../util/query-builder';
 import { createCompaniesService } from './company.service';
 
 export async function createCategoryService(category: Category) {
-  try {
-    const categoryExist = await getCategoryByName(category.name);
-    if (!categoryExist) {
-      return await createCategory(category);
-    }
-    if (!categoryExist.active) {
-      await enableCategory(categoryExist.id);
-      return categoryExist;
-    }
-    return categoryExist;
-  } catch (e: any) {
-    throw new Error(e.message);
+  const categoryExist = await getCategoryByName(category.name);
+  if (!categoryExist) {
+    return await createCategory(category);
   }
+  if (!categoryExist.active) {
+    await enableCategory(categoryExist.id);
+    return categoryExist;
+  }
+  return categoryExist;
 }
 
 export async function createCategoriesService(
@@ -34,22 +30,18 @@ export async function createCategoriesService(
 ) {
   const categoryExist: AssociationCompanyAndCategory[] = [];
   const categoryNotExist: AssociationCompanyAndCategory[] = [];
-  try {
-    const categoriesInDB = await getAllCategory();
-    for (const category of categories) {
-      const exist = categoriesInDB.find((c) => c.name === category.name);
-      if (exist) {
-        category.id = exist.id;
-        categoryExist.push(category);
-      } else {
-        categoryNotExist.push(category);
-      }
+  const categoriesInDB = await getAllCategory();
+  for (const category of categories) {
+    const exist = categoriesInDB.find((c) => c.name === category.name);
+    if (exist) {
+      category.id = exist.id;
+      categoryExist.push(category);
+    } else {
+      categoryNotExist.push(category);
     }
-    await createCategoryExist(categoryExist);
-    await createCategoryNotExist(categoryNotExist);
-  } catch (e: any) {
-    throw new Error(e.message);
   }
+  await createCategoryExist(categoryExist);
+  await createCategoryNotExist(categoryNotExist);
 }
 
 async function createCategoryExist(category: AssociationCompanyAndCategory[]) {
@@ -108,36 +100,20 @@ async function createCategoryNotExist(
 }
 
 export async function getAllCategoryService() {
-  try {
-    const categories = await getAllCategory();
-    return categories;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const categories = await getAllCategory();
+  return categories;
 }
 
 export async function getCategoryByIdService(id: number) {
-  try {
-    const category = await getCategoryById(id);
-    return category;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const category = await getCategoryById(id);
+  return category;
 }
 
 export async function updateCategoryService(category: Category) {
-  try {
-    const update = await updateCategory(category);
-    return update;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const update = await updateCategory(category);
+  return update;
 }
 
 export async function disableCategoryService(id: number) {
-  try {
-    await disableCategory(id);
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  await disableCategory(id);
 }

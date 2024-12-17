@@ -17,7 +17,13 @@ associateCategoryCompanyRouter.get(
       const response = await getAllAssociationService();
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -30,7 +36,13 @@ associateCategoryCompanyRouter.get(
       const response = await getAssociationByCategoryIdService(Number(id));
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -43,7 +55,13 @@ associateCategoryCompanyRouter.post(
       await createAssociationByCategoryService(id_category, id_company);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -56,8 +74,13 @@ associateCategoryCompanyRouter.post(
       await createAssociationByCategoryArrayService(association);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      console.log(error.message);
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -70,7 +93,13 @@ associateCategoryCompanyRouter.delete(
       await deleteAssociationService(id_category, id_company);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );

@@ -21,9 +21,6 @@ export async function createCompany(company: Company) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as Company;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -37,9 +34,6 @@ export async function getAllCompany() {
     };
     const { rows } = await client.query(query);
     return rows as unknown as Company[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -56,9 +50,6 @@ export async function getCompanyById(id: number) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as Company;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -74,9 +65,6 @@ export async function getCompanyByTradeName(trade_name: string) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as Company;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -95,9 +83,6 @@ export async function associateCompany(id: number, associate: boolean) {
       rowMode: 'single'
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -123,9 +108,6 @@ export async function updateCompany(company: Company) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as Company;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -139,9 +121,6 @@ export async function disableCompany(id: number) {
       values: [id]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -155,9 +134,6 @@ export async function enableCompany(id: number) {
       values: [id]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

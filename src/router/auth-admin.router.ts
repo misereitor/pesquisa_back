@@ -15,7 +15,13 @@ loginAdminRouter.post(
       const response = await loginUserAdminService(logn);
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -28,7 +34,13 @@ loginAdminRouter.post(
       const response = await registerUserService(user);
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );

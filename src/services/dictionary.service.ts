@@ -7,39 +7,23 @@ import {
 } from '../repository/dictionary';
 
 export async function getAllDictionaryEntriesService() {
-  try {
-    const dictionaryEntries = await getAllDictionaryEntries();
-    return dictionaryEntries;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  const dictionaryEntries = await getAllDictionaryEntries();
+  return dictionaryEntries;
 }
 
 export async function insertDictionaryEntryService(
   dictionary: DictionaryEntry
 ) {
-  try {
-    const dictionaryEntries = await insertDictionaryEntry(dictionary);
-    return dictionaryEntries;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  const dictionaryEntries = await insertDictionaryEntry(dictionary);
+  return dictionaryEntries;
 }
 
 export async function updateDictionaryEntryService(
   dictionary: DictionaryEntry
 ) {
-  try {
-    await updateDictionaryEntry(dictionary);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  await updateDictionaryEntry(dictionary);
 }
 
 export async function deleteDictionaryEntryService(key_word: string) {
-  try {
-    await deleteDictionaryEntry(key_word);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  await deleteDictionaryEntry(key_word);
 }

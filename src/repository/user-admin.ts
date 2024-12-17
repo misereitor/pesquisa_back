@@ -23,9 +23,6 @@ export async function createUserAdmin(user: UserAdmin) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserAdmin;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -42,9 +39,6 @@ export async function getUserAdminById(id: number) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserAdmin;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -61,9 +55,6 @@ export async function getUserAdminByUsername(username: string) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserAdmin;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -77,9 +68,6 @@ export async function getAllUserAdmin() {
     };
     const { rows } = await client.query(query);
     return rows as unknown as UserAdmin[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -95,9 +83,6 @@ export async function updateUserAdmin(user: UserAdmin) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserAdmin;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -113,9 +98,6 @@ export async function updateRoleUserAdmin(id: number, role: string) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserAdmin;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -130,9 +112,6 @@ export async function updatePasswordUserAdmin(id: number, password: string) {
       rowMode: 'single'
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -146,9 +125,6 @@ export async function deleteUserAdminById(id: number) {
       values: [id]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

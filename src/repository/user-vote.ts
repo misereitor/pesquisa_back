@@ -24,9 +24,6 @@ export async function createUserVote(user: UserVote) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -43,9 +40,6 @@ export async function getUserVoteById(id: number) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -59,9 +53,6 @@ export async function getAllUserVote() {
     };
     const { rows } = await client.query(query);
     return rows as unknown as UserVote[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -78,9 +69,6 @@ export async function getUserVoteFromCPF(cpf: string) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -96,9 +84,6 @@ export async function getUserVoteFromPhone(phone: string) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -114,9 +99,6 @@ export async function updateUserVote(user: UserVote) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -132,9 +114,6 @@ export async function updateUserVotePhoneConfirmed(phone: string) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -149,9 +128,6 @@ export async function updateTrySendCode(user: UserVote) {
       rowMode: 'single'
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -174,9 +150,6 @@ export async function updateUserVoteAfterVoteConfirm(
       values: [userVote.id, userVote.percentage_vote, JSON.stringify(votes)]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -190,9 +163,6 @@ export async function getAllUserVoteVoted() {
     };
     const { rows } = await client.query(query);
     return rows as unknown as UserVote[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

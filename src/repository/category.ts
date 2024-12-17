@@ -16,9 +16,6 @@ export async function createCategory(category: Category) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as Category;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -62,9 +59,6 @@ ORDER BY
 
     const { rows } = await client.query(query);
     return rows as unknown as Category[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -81,9 +75,6 @@ export async function getAllCategoryByReportGeral() {
 
     const { rows } = await client.query(query);
     return rows as unknown as Category[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -100,9 +91,6 @@ export async function getCategoryById(id: number) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as Category;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -119,9 +107,6 @@ export async function getCategoryByName(name: string) {
 
     const { rows } = await client.query(query);
     return rows[0] as unknown as Category;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -137,9 +122,6 @@ export async function updateCategory(category: Category) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as Category;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -153,9 +135,6 @@ export async function disableCategory(id: number) {
       values: [id]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -169,9 +148,6 @@ export async function enableCategory(id: number) {
       values: [id]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

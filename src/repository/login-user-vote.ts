@@ -20,9 +20,6 @@ export async function createConfirmedLogin(confirmed: ConfirmedPhone) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as ConfirmedPhone;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -39,9 +36,6 @@ export async function getConfirmationUserVote(phone: string, code: string) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as ConfirmedPhone;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -58,9 +52,6 @@ export async function deleteCodeConfirmed(id: number) {
       values: [id]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -76,9 +67,6 @@ export async function deleteExpiredConfirmed() {
       `
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

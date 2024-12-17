@@ -17,61 +17,41 @@ import {
 } from '../repository/votes';
 
 export async function getAllDataForVoteService(id: number) {
-  try {
-    const [companiesData, categoriesData, userVotesData, dictionaryData] =
-      await Promise.all([
-        getAllCompany(),
-        getAllCategory(),
-        getAllVotesInCache(id),
-        getAllDictionaryEntries()
-      ]);
-    return { companiesData, categoriesData, userVotesData, dictionaryData };
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const [companiesData, categoriesData, userVotesData, dictionaryData] =
+    await Promise.all([
+      getAllCompany(),
+      getAllCategory(),
+      getAllVotesInCache(id),
+      getAllDictionaryEntries()
+    ]);
+  return { companiesData, categoriesData, userVotesData, dictionaryData };
 }
 
 export async function createVoteInCacheService(vote: Vote) {
-  try {
-    const voteExist = await getVoteInCacheById(vote);
-    if (voteExist) {
-      await updateVoteInCache(vote);
-    } else {
-      await createVoteInCache(vote);
-    }
-  } catch (e: any) {
-    throw new Error(e.message);
+  const voteExist = await getVoteInCacheById(vote);
+  if (voteExist) {
+    await updateVoteInCache(vote);
+  } else {
+    await createVoteInCache(vote);
   }
 }
 
 export async function getAllVotesService(id_user_vote: number) {
-  try {
-    const votes = await getAllVotesInCache(id_user_vote);
-    return votes;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const votes = await getAllVotesInCache(id_user_vote);
+  return votes;
 }
 
 export async function confirmVoteService(userVote: UserVote) {
-  try {
-    await confirmVote(userVote.id);
-    await deleteVoteInCache(userVote.id);
-    await updateVotesUserVoteConfirmation(userVote);
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  await confirmVote(userVote.id);
+  await deleteVoteInCache(userVote.id);
+  await updateVotesUserVoteConfirmation(userVote);
 }
 
 async function updateVotesUserVoteConfirmation(userVote: UserVote) {
-  try {
-    const votes: VotesConfirmed[] = await getAllVotesConfirmedFromUser(
-      userVote.id
-    );
-    await updateUserVoteAfterVoteConfirm(userVote, votes);
-    await batchInsertVotesFromVotes(votes);
-    await incrementVoteForCity(userVote.city);
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const votes: VotesConfirmed[] = await getAllVotesConfirmedFromUser(
+    userVote.id
+  );
+  await updateUserVoteAfterVoteConfirm(userVote, votes);
+  await batchInsertVotesFromVotes(votes);
+  await incrementVoteForCity(userVote.city);
 }

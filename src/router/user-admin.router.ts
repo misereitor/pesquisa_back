@@ -17,7 +17,13 @@ userAdminRouter.get(
       const data = await getAllUserAdminService();
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -31,7 +37,13 @@ userAdminRouter.put(
       await alterPasswordUserAdminService(Number(id), password);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -45,7 +57,13 @@ userAdminRouter.put(
       const data = await alterProfileUserAdminService(Number(id), user);
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -59,7 +77,13 @@ userAdminRouter.put(
       await alterRoleUserAdminService(Number(id), role);
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -72,7 +96,13 @@ userAdminRouter.put(
       await deleteUserAdminService(Number(id));
       res.status(200).json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );

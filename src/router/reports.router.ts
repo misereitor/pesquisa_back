@@ -20,7 +20,12 @@ reportsRouter.get('/reports/dashboard', async (req: Request, res: Response) => {
     const data = await getAllDataFromDashboard();
     res.status(200).json({ success: true, data });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.statusCode) {
+      res
+        .status(error.statusCode)
+        .json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Erro interno' });
   }
 });
 
@@ -31,7 +36,13 @@ reportsRouter.get(
       const data = await getAllDataReportGeral();
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -43,7 +54,13 @@ reportsRouter.get(
       const data = await getAllDataReportCategory();
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -55,7 +72,13 @@ reportsRouter.get(
       const data = await getAllDataReportCity();
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -67,7 +90,13 @@ reportsRouter.get(
       const data = await getAllDataReportPercentagem();
       res.status(200).json({ success: true, data });
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -91,7 +120,13 @@ reportsRouter.get(
       );
       res.send(data);
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -115,7 +150,13 @@ reportsRouter.get(
       );
       res.send(data);
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -139,7 +180,13 @@ reportsRouter.get(
       );
       res.send(data);
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );
@@ -163,7 +210,13 @@ reportsRouter.get(
       );
       res.send(data);
     } catch (error: any) {
-      res.status(500).json({ success: false, message: error.message });
+      if (error.statusCode) {
+        res
+          .status(error.statusCode)
+          .json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
     }
   }
 );

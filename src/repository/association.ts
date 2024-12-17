@@ -21,9 +21,6 @@ export async function createAssociationCategory(
       rowMode: 'single'
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -132,9 +129,6 @@ export async function getAllAssociation() {
     };
     const { rows } = await client.query(query);
     return rows as unknown as AssociationCompanyAndCategory[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -177,9 +171,6 @@ export async function getAssociationByCategoryId(id: number) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as AssociationCompanyAndCategory;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -198,9 +189,6 @@ export async function deleteAssociation(
       values: [id_category, id_company]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

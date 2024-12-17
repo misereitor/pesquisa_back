@@ -9,9 +9,6 @@ export async function queryCuston(text: string, values: any) {
     };
     const rows = await client.query(query);
     return rows;
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }

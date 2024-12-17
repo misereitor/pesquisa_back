@@ -11,50 +11,29 @@ export async function createAssociationByCategoryService(
   id_category: number,
   id_company: number
 ) {
-  try {
-    await createAssociationCategory(id_category, id_company);
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  await createAssociationCategory(id_category, id_company);
 }
 
 export async function createAssociationByCategoryArrayService(
   association: ImportCSV[]
 ) {
-  try {
-    const promises = association.map(async (ass) => await importCSV(ass));
-    await Promise.all(promises);
-  } catch (e: any) {
-    console.error('Erro ao processar array:', e.message);
-    throw new Error(e.message);
-  }
+  const promises = association.map(async (ass) => await importCSV(ass));
+  await Promise.all(promises);
 }
 
 export async function getAllAssociationService() {
-  try {
-    const associate = await getAllAssociation();
-    return associate;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const associate = await getAllAssociation();
+  return associate;
 }
 
 export async function getAssociationByCategoryIdService(id_category: number) {
-  try {
-    const associate = await getAssociationByCategoryId(id_category);
-    return associate;
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  const associate = await getAssociationByCategoryId(id_category);
+  return associate;
 }
 
 export async function deleteAssociationService(
   id_category: number,
   id_company: number
 ) {
-  try {
-    await deleteAssociation(id_category, id_company);
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
+  await deleteAssociation(id_category, id_company);
 }

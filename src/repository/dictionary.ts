@@ -13,9 +13,6 @@ export async function insertDictionaryEntry(entry: DictionaryEntry) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as DictionaryEntry[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -33,9 +30,6 @@ export async function updateDictionaryEntry(entry: DictionaryEntry) {
       values: [entry.key_word, entry.synonyms]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -51,9 +45,6 @@ export async function getAllDictionaryEntries() {
     };
     const { rows } = await client.query(query);
     return rows as DictionaryEntry[];
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
@@ -70,9 +61,6 @@ export async function deleteDictionaryEntry(key_word: string) {
       values: [key_word]
     };
     await client.query(query);
-  } catch (e: any) {
-    console.warn(e);
-    throw new Error(e.message);
   } finally {
     client.release();
   }
