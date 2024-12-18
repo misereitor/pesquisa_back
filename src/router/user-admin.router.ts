@@ -18,9 +18,7 @@ userAdminRouter.get(
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -38,9 +36,7 @@ userAdminRouter.put(
       res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -58,9 +54,7 @@ userAdminRouter.put(
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -78,9 +72,7 @@ userAdminRouter.put(
       res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -97,9 +89,7 @@ userAdminRouter.put(
       res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });

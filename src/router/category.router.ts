@@ -18,9 +18,8 @@ categoryRouter.get('/category/get-all', async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
     if (error.statusCode) {
-      res
-        .status(error.statusCode)
-        .json({ success: false, message: error.message });
+      res.status(200).json({ success: false, message: error.message });
+      return;
     }
     res.status(500).json({ success: false, message: 'Erro interno' });
   }
@@ -33,9 +32,8 @@ categoryRouter.get('/category/get/:id', async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
     if (error.statusCode) {
-      res
-        .status(error.statusCode)
-        .json({ success: false, message: error.message });
+      res.status(200).json({ success: false, message: error.message });
+      return;
     }
     res.status(500).json({ success: false, message: 'Erro interno' });
   }
@@ -48,9 +46,8 @@ categoryRouter.post('/category/create', async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
     if (error.statusCode) {
-      res
-        .status(error.statusCode)
-        .json({ success: false, message: error.message });
+      res.status(200).json({ success: false, message: error.message });
+      return;
     }
     res.status(500).json({ success: false, message: 'Erro interno' });
   }
@@ -65,9 +62,7 @@ categoryRouter.post(
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -82,9 +77,8 @@ categoryRouter.put('/category/update', async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: response });
   } catch (error: any) {
     if (error.statusCode) {
-      res
-        .status(error.statusCode)
-        .json({ success: false, message: error.message });
+      res.status(200).json({ success: false, message: error.message });
+      return;
     }
     res.status(500).json({ success: false, message: 'Erro interno' });
   }
@@ -99,9 +93,7 @@ categoryRouter.put(
       res.status(200).json({ success: true, data: response });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });

@@ -17,9 +17,7 @@ authVotingRouter.get(
       res.status(200).json({ success: true, data: userExist });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -34,9 +32,8 @@ authVotingRouter.post('/voting/auth', async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: createUser });
   } catch (error: any) {
     if (error.statusCode) {
-      res
-        .status(error.statusCode)
-        .json({ success: false, message: error.message });
+      res.status(200).json({ success: false, message: error.message });
+      return;
     }
     res.status(500).json({ success: false, message: 'Erro interno' });
   }
@@ -52,9 +49,7 @@ authVotingRouter.post(
       res.status(200).json({ success: true, data: login });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });

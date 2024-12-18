@@ -17,9 +17,7 @@ dictionaryRouter.get(
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -36,9 +34,7 @@ dictionaryRouter.post(
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -55,9 +51,7 @@ dictionaryRouter.put(
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
@@ -74,9 +68,7 @@ dictionaryRouter.delete(
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {
-        res
-          .status(error.statusCode)
-          .json({ success: false, message: error.message });
+        res.status(200).json({ success: false, message: error.message });
         return;
       }
       res.status(500).json({ success: false, message: 'Erro interno' });
