@@ -117,7 +117,7 @@ export async function getAllVotesConfirmedFromUser(id_user_vote: number) {
       SELECT 
         v.id_category, 
         v.id_company, 
-        c.company_name, 
+        c.trade_name, 
         cat.name as category_name
       FROM 
         votes v

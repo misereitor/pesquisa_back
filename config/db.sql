@@ -120,6 +120,6 @@ CREATE TABLE IF NOT EXISTS category_votes (
     id SERIAL PRIMARY KEY,
     id_category INT NOT NULL REFERENCES category(id),
     id_company INT NOT NULL REFERENCES company(id),
-    total_votes INT NOT NULL DEFAULT 0
+    total_votes INT NOT NULL DEFAULT 0,
     CONSTRAINT unique_category_company UNIQUE (id_category, id_company)
 );
