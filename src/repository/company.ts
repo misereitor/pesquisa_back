@@ -30,7 +30,7 @@ export async function getAllCompany() {
   const client = await pool.connect();
   try {
     const query = {
-      text: 'SELECT * FROM company WHERE active = TRUE ORDER BY company_name'
+      text: 'SELECT * FROM company WHERE active = TRUE ORDER BY trade_name'
     };
     const { rows } = await client.query(query);
     return rows as unknown as Company[];
