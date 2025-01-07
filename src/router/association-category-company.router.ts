@@ -2,11 +2,15 @@ import { Response, Request, Router } from 'express';
 import {
   createAssociationByCategoryArrayService,
   createAssociationByCategoryService,
+  createManyAssociationByCategoryService,
   deleteAssociationService,
   getAllAssociationService,
   getAssociationByCategoryIdService
 } from '../services/association-category-company.service';
-import { ImportCSV } from '../model/association-company-category';
+import {
+  AssociationCategoryAndCompany,
+  ImportCSV
+} from '../model/association-company-category';
 
 const associateCategoryCompanyRouter = Router();
 
@@ -49,6 +53,23 @@ associateCategoryCompanyRouter.post(
     try {
       const { id_category, id_company } = req.body;
       await createAssociationByCategoryService(id_category, id_company);
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      if (error.statusCode) {
+        res.status(200).json({ success: false, message: error.message });
+        return;
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
+    }
+  }
+);
+
+associateCategoryCompanyRouter.post(
+  '/association/create-many',
+  async (req: Request, res: Response) => {
+    try {
+      const associate: AssociationCategoryAndCompany[] = req.body;
+      await createManyAssociationByCategoryService(associate);
       res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.statusCode) {

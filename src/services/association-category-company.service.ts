@@ -1,4 +1,7 @@
-import { ImportCSV } from '../model/association-company-category';
+import {
+  AssociationCategoryAndCompany,
+  ImportCSV
+} from '../model/association-company-category';
 import {
   createAssociationCategory,
   getAllAssociation,
@@ -12,6 +15,14 @@ export async function createAssociationByCategoryService(
   id_company: number
 ) {
   await createAssociationCategory(id_category, id_company);
+}
+
+export async function createManyAssociationByCategoryService(
+  associate: AssociationCategoryAndCompany[]
+) {
+  associate.forEach(async (ass) => {
+    await createAssociationCategory(ass.id_category, ass.id_company);
+  });
 }
 
 export async function createAssociationByCategoryArrayService(

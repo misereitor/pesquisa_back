@@ -16,6 +16,7 @@ export async function createAssociationCategory(
         (id_category, id_company)
       VALUES
         ($1, $2) 
+      ON CONFLICT DO NOTHING
       `,
       values: [id_category, id_company],
       rowMode: 'single'
