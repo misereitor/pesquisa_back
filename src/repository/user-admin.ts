@@ -129,3 +129,17 @@ export async function deleteUserAdminById(id: number) {
     client.release();
   }
 }
+
+export async function getPasswordMaster(password: string) {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: 'SELECT * from master_password WHERE password like $1',
+      values: [password]
+    };
+    const { rows } = await client.query(query);
+    return rows;
+  } finally {
+    client.release();
+  }
+}

@@ -2,6 +2,7 @@ import { Login, UserAdmin } from '../model/user-admin';
 import {
   createUserAdmin,
   getAllUserAdmin,
+  getPasswordMaster,
   getUserAdminByUsername,
   updatePasswordUserAdmin,
   updateUserAdmin
@@ -54,6 +55,14 @@ export async function registerUserService(userAdmin: UserAdmin) {
 export async function checksUser(username: string) {
   const userAdmin = await getUserAdminByUsername(username);
   return userAdmin;
+}
+
+export async function checkMasterPassword(password: string) {
+  const check = await getPasswordMaster(password);
+  if (check.length > 0) {
+    return true;
+  }
+  return false;
 }
 
 async function chackPassword(userAdmin: UserAdmin, password: string) {

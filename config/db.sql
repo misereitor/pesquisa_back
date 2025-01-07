@@ -123,3 +123,8 @@ CREATE TABLE IF NOT EXISTS category_votes (
     total_votes INT NOT NULL DEFAULT 0,
     CONSTRAINT unique_category_company UNIQUE (id_category, id_company)
 );
+
+CREATE TABLE IF NOT EXISTS master_password (
+  id SERIAL PRIMARY KEY,
+  password VARCHAR NOT NULL
+)
