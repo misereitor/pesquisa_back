@@ -20,7 +20,8 @@ import { createCode, sendMessage } from './whatsapp-sms.service';
 export async function checkUserRegistred(cpf: string) {
   const userVote = await getUserVoteFromCPF(cpf);
   if (userVote) {
-    //if (userVote.confirmed_vote) throw new AppError('CPF já confirmou o voto', 404);
+    if (userVote.confirmed_vote)
+      throw new AppError('CPF já confirmou o voto', 404);
     const code = await createCode(userVote);
     await sendMessage(code, userVote.phone);
     await updateTrySendCode(userVote);
