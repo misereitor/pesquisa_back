@@ -23,7 +23,7 @@ export async function createCode(user: UserVote) {
 
 export async function sendMessage(code: string, phone: string) {
   const codeEdit = `${code.substring(0, 3)}-${code.substring(3, 6)}`;
-  const message = `Seu código de confirmação é para os melhores do ano é: ${codeEdit}`;
+  const message = `Código de validação para a pesquisa Melhores do Ano 2024: ${codeEdit}`;
   const checkNumberIsWhatsapp = await fetch(
     `${WHATSAPP_API_URL}/api/contacts/check-exists?phone=${phone}&session=${WHATSAPP_SESSION}`,
     {
