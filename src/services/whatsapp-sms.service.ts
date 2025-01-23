@@ -49,7 +49,7 @@ export async function sendMessage(code: string, phone: string) {
     const data2 = await checkNumberIsWhatsappTwo.json();
     if (checkNumberIsWhatsappTwo.ok) {
       if (data2.numberExists) {
-        await sendMessageWhatsapp(data.chatId, message);
+        await sendMessageWhatsapp(data2.chatId, message);
         return;
       }
     }
