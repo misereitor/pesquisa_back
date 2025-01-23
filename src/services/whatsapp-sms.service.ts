@@ -38,6 +38,21 @@ export async function sendMessage(code: string, phone: string) {
       await sendMessageWhatsapp(data.chatId, message);
       return;
     }
+    const checkNumberIsWhatsappTwo = await fetch(
+      `${WHATSAPP_API_URL}/api/contacts/check-exists?phone=${'55' + phone}&session=${WHATSAPP_SESSION}`,
+      {
+        headers: {
+          'X-API-KEY': String(WHATSAPP_X_APY_KEY)
+        }
+      }
+    );
+    const data2 = await checkNumberIsWhatsappTwo.json();
+    if (checkNumberIsWhatsappTwo.ok) {
+      if (data2.numberExists) {
+        await sendMessageWhatsapp(data.chatId, message);
+        return;
+      }
+    }
   }
   throw new AppError('Número de whastapp invalido!', 404);
 }
