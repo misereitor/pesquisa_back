@@ -48,3 +48,11 @@ export interface TotalCountForCity {
   city: string;
   total: number;
 }
+
+export interface GraphReport {
+  category_name: string;
+  companies: {
+    name: string;
+    value: number;
+  }[];
+}

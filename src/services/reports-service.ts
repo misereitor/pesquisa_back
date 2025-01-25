@@ -1,3 +1,4 @@
+import { CategoryVotes, GraphReport } from '../model/votes';
 import { getAllCategoryByReportGeral } from '../repository/category';
 import { getAllUserVote } from '../repository/user-vote';
 import {
@@ -19,8 +20,37 @@ export async function getAllDataFromDashboard() {
     getAllUserVote(),
     getTotalVotesByCity()
   ]);
-  return { votesCategory, countVotes, usersVote, totalCity };
+  const graphReport = graphReportMount(votesCategory);
+  return { votesCategory, countVotes, usersVote, totalCity, graphReport };
 }
+
+const graphReportMount = (votesCategory: CategoryVotes[]) => {
+  const graphReport: GraphReport[] = votesCategory.map((e) => {
+    const companies = e.companies.sort((a, b) => b.value - a.value);
+    const filterCompany = companies.slice(0, 3);
+    const outerCompany = companies.slice(3);
+    const data = filterCompany.map((e) => {
+      const dataFilter = {
+        name: e.name,
+        value: e.value
+      };
+      return dataFilter;
+    });
+
+    const outer = {
+      name: 'Outros',
+      value: 0
+    };
+    outerCompany.forEach((e) => (outer.value += e.value));
+    data.push(outer);
+    const res = {
+      category_name: e.category_name,
+      companies: data
+    };
+    return res;
+  });
+  return graphReport;
+};
 
 export async function getAllDataReportGeral() {
   const [usersVote, categories] = await Promise.all([
