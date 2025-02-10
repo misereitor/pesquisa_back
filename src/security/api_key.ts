@@ -11,8 +11,8 @@ export const validateApiKey = (
 ) => {
   try {
     if (
-      req.path.split('/')[2] === 'reports' &&
-      req.path.split('/')[3] === 'download'
+      req.path.split('/')[3] === 'reports' &&
+      req.path.split('/')[4] === 'download'
     ) {
       next();
       return;
