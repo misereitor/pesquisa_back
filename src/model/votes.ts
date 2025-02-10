@@ -21,7 +21,7 @@ export interface Votes {
 export interface VotesConfirmed {
   id_category: number;
   id_company: number;
-  company_name: string;
+  trade_name: string;
   category_name: string;
 }
 

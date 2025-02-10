@@ -34,19 +34,21 @@ export const exportCSVGeral = (
       regexPhone(user.phone),
       user.uf,
       user.city,
-      new Date(user.date_create)
-        .toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' })
-        .replace(',', ''),
-      new Date(user.date_vote)
-        .toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' })
-        .replace(',', '')
+      formatDate(user.date_create),
+      formatDate(user.date_vote)
     ];
-    const categoryVotes = categories.map((category) => {
-      const vote = user.votes?.find((v) => v.id_category === category.id);
-      return vote ? vote.company_name : '';
-    });
+    if (user.confirmed_vote) {
+      const categoryVotes = categories.map((category) => {
+        const vote = user.votes.find(
+          (v) => Number(v.id_category) === Number(category.id)
+        );
+        console.log(vote ? vote.trade_name : '');
+        return vote ? vote.trade_name : '';
+      });
 
-    return [...rowData, ...categoryVotes];
+      return [...rowData, ...categoryVotes];
+    }
+    return [...rowData];
   });
 
   const csvString =
@@ -54,6 +56,13 @@ export const exportCSVGeral = (
 
   return csvString;
 };
+
+const formatDate = (date: Date | null) =>
+  date
+    ? new Date(date)
+        .toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium' })
+        .replace(',', '')
+    : '';
 
 export const exportCSVCategoryReport = (categories: CategoryVotes[]) => {
   const header = [
