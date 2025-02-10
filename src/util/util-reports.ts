@@ -42,7 +42,6 @@ export const exportCSVGeral = (
         const vote = user.votes.find(
           (v) => Number(v.id_category) === Number(category.id)
         );
-        console.log(vote ? vote.trade_name : '');
         return vote ? vote.trade_name : '';
       });
 
@@ -52,7 +51,9 @@ export const exportCSVGeral = (
   });
 
   const csvString =
-    csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(csvData);
+    '\ufeff' +
+    csvStringifier.getHeaderString() +
+    csvStringifier.stringifyRecords(csvData);
 
   return csvString;
 };
@@ -89,7 +90,9 @@ export const exportCSVCategoryReport = (categories: CategoryVotes[]) => {
   });
 
   const csvString =
-    csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(csvData);
+    '\ufeff' +
+    csvStringifier.getHeaderString() +
+    csvStringifier.stringifyRecords(csvData);
 
   return csvString;
 };
@@ -110,7 +113,9 @@ export const exportCSVCityReport = (cities: TotalCountForCity[]) => {
   });
 
   const csvString =
-    csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(csvData);
+    '\ufeff' +
+    csvStringifier.getHeaderString() +
+    csvStringifier.stringifyRecords(csvData);
 
   return csvString;
 };
@@ -136,7 +141,9 @@ export const exportCSVPercentagemReport = (percentage: UserVote[]) => {
   });
 
   const csvString =
-    csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(csvData);
+    '\ufeff' +
+    csvStringifier.getHeaderString() +
+    csvStringifier.stringifyRecords(csvData);
 
   return csvString;
 };
