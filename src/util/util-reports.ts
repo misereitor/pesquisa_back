@@ -42,7 +42,7 @@ export const exportCSVGeral = (
         .replace(',', '')
     ];
     const categoryVotes = categories.map((category) => {
-      const vote = user.votes.find((v) => v.id_category === category.id);
+      const vote = user.votes?.find((v) => v.id_category === category.id);
       return vote ? vote.company_name : '';
     });
 
