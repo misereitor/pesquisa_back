@@ -10,9 +10,10 @@ export const validateApiKey = (
   next: NextFunction
 ) => {
   try {
+    console.log(req.path);
     if (
-      req.path.split('/')[3] === 'reports' &&
-      req.path.split('/')[4] === 'download'
+      req.path.split('/')[4] === 'reports' &&
+      req.path.split('/')[5] === 'download'
     ) {
       next();
       return;
