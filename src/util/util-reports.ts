@@ -22,7 +22,8 @@ export const exportCSVGeral = (
   ];
 
   const csvStringifier = createArrayCsvStringifier({
-    header // Define o cabeçalho
+    header,
+    fieldDelimiter: ';' // Define o cabeçalho
   });
 
   const csvData = usersVote.map((user) => {
