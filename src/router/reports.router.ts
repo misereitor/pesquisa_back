@@ -8,7 +8,8 @@ import {
   downloadReportGeral,
   downloadReportCategory,
   downloadReportCity,
-  downloadReportPercentage
+  downloadReportPercentage,
+  getAllGraphReport
 } from '../services/reports-service';
 
 const reportsRouter = Router();
@@ -26,6 +27,21 @@ reportsRouter.get('/reports/dashboard', async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Erro interno' });
   }
 });
+
+reportsRouter.get(
+  '/reports/dashboard/graph-report',
+  async (req: Request, res: Response) => {
+    try {
+      const data = await getAllGraphReport();
+      res.status(200).json({ success: true, data });
+    } catch (error: any) {
+      if (error.statusCode) {
+        res.status(200).json({ success: false, message: error.message });
+      }
+      res.status(500).json({ success: false, message: 'Erro interno' });
+    }
+  }
+);
 
 reportsRouter.get(
   '/reports/get-all-data-report-geral',

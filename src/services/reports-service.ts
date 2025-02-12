@@ -24,6 +24,12 @@ export async function getAllDataFromDashboard() {
   return { votesCategory, countVotes, usersVote, totalCity, graphReport };
 }
 
+export async function getAllGraphReport() {
+  const votesCategory = await getAllDataReportCategory();
+  const graphReport = graphReportMount(votesCategory);
+  return graphReport;
+}
+
 const graphReportMount = (votesCategory: CategoryVotes[]) => {
   const graphReport: GraphReport[] = votesCategory.map((e) => {
     const companies = e.companies.sort((a, b) => b.value - a.value);
