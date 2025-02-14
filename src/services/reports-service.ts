@@ -1,6 +1,12 @@
 import { CategoryVotes, GraphReport } from '../model/votes';
 import { getAllCategoryByReportGeral } from '../repository/category';
-import { getAllUserVote } from '../repository/user-vote';
+import {
+  getAllPorcentageByUserVote,
+  getAllUserVote,
+  getAllUserVoteForTime,
+  getAllUserVotePagination,
+  getTotalCountForUser
+} from '../repository/user-vote';
 import {
   getVotesByCategory,
   getCountVotesByUser,
@@ -17,7 +23,7 @@ export async function getAllDataFromDashboard() {
   const [votesCategory, countVotes, usersVote, totalCity] = await Promise.all([
     getAllDataReportCategory(),
     getCountVotesByUser(),
-    getAllUserVote(),
+    getAllUserVoteForTime(),
     getTotalVotesByCity()
   ]);
   const graphReport = graphReportMount(votesCategory);
@@ -58,7 +64,16 @@ const graphReportMount = (votesCategory: CategoryVotes[]) => {
   return graphReport;
 };
 
-export async function getAllDataReportGeral() {
+export async function getAllDataReportGeral(limit: number, offset: number) {
+  const [usersVote, categories, totalUser] = await Promise.all([
+    getAllUserVotePagination(limit, offset),
+    getAllCategoryByReportGeral(),
+    getTotalCountForUser()
+  ]);
+  return { usersVote, categories, total: totalUser.total };
+}
+
+export async function getAllDataReportGeralDownload() {
   const [usersVote, categories] = await Promise.all([
     getAllUserVote(),
     getAllCategoryByReportGeral()
@@ -83,12 +98,12 @@ export async function getAllDataReportCity() {
 }
 
 export async function getAllDataReportPercentagem() {
-  const usersVote = await getAllUserVote();
+  const usersVote = await getAllPorcentageByUserVote();
   return usersVote;
 }
 
 export async function downloadReportGeral() {
-  const { categories, usersVote } = await getAllDataReportGeral();
+  const { categories, usersVote } = await getAllDataReportGeralDownload();
   return exportCSVGeral(usersVote, categories);
 }
 

@@ -47,7 +47,11 @@ reportsRouter.get(
   '/reports/get-all-data-report-geral',
   async (req: Request, res: Response) => {
     try {
-      const data = await getAllDataReportGeral();
+      const { limit, offset } = req.query;
+      if (!limit || !offset) {
+        throw new Error('Erro Interno');
+      }
+      const data = await getAllDataReportGeral(Number(limit), Number(offset));
       res.status(200).json({ success: true, data });
     } catch (error: any) {
       if (error.statusCode) {

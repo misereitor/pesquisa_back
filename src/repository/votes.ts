@@ -241,11 +241,11 @@ export async function getCountVotesByUser() {
   try {
     const query = `
       SELECT
-        COUNT(*) AS total_items,
-        COUNT(*) FILTER (WHERE confirmed_vote = TRUE) AS total_confirmed_true,
-        COUNT(*) FILTER (WHERE confirmed_vote = FALSE) AS total_confirmed_false,
-        COUNT(*) FILTER (WHERE percentage_vote >= 70) AS total_percentage_above_70,
-        COUNT(*) FILTER (WHERE percentage_vote < 70) AS total_percentage_below_70
+        COUNT(id) AS total_items,
+        COUNT(id) FILTER (WHERE confirmed_vote = TRUE) AS total_confirmed_true,
+        COUNT(id) FILTER (WHERE confirmed_vote = FALSE) AS total_confirmed_false,
+        COUNT(id) FILTER (WHERE percentage_vote >= 70) AS total_percentage_above_70,
+        COUNT(id) FILTER (WHERE percentage_vote < 70) AS total_percentage_below_70
       FROM users_vote;
     `;
     const { rows } = await client.query(query);

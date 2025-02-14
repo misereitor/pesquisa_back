@@ -58,6 +58,58 @@ export async function getAllUserVote() {
   }
 }
 
+export async function getAllPorcentageByUserVote() {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: 'SELECT id, name, percentage_vote FROM users_vote ORDER BY name'
+    };
+    const { rows } = await client.query(query);
+    return rows as unknown as UserVote[];
+  } finally {
+    client.release();
+  }
+}
+
+export async function getAllUserVotePagination(limit: number, offset: number) {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: `SELECT * FROM users_vote ORDER BY name LIMIT ${limit} OFFSET ${offset}`
+    };
+    const { rows } = await client.query(query);
+    return rows as unknown as UserVote[];
+  } finally {
+    client.release();
+  }
+}
+
+export async function getTotalCountForUser() {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: `SELECT COUNT(ID) AS total FROM users_vote as total;`
+    };
+    const { rows } = await client.query(query);
+    return rows[0] as unknown as { total: number };
+  } finally {
+    client.release();
+  }
+}
+
+export async function getAllUserVoteForTime() {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: 'SELECT date_vote FROM users_vote'
+    };
+    const { rows } = await client.query(query);
+    return rows as unknown as UserVote[];
+  } finally {
+    client.release();
+  }
+}
+
 export async function getUserVoteFromCPF(cpf: string) {
   const client = await pool.connect();
   try {
