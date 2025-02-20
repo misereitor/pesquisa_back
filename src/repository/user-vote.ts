@@ -126,6 +126,22 @@ export async function getUserVoteFromCPF(cpf: string) {
   }
 }
 
+export async function getUserVoteFromCPFByAdmin(cpf: string) {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: 'SELECT id, name, phone, cpf, confirmed_phone, confirmed_vote FROM users_vote WHERE cpf = ($1)',
+      values: [cpf],
+      rowMode: 'single'
+    };
+
+    const { rows } = await client.query(query);
+    return rows[0] as unknown as UserVote;
+  } finally {
+    client.release();
+  }
+}
+
 export async function getUserVoteFromPhone(phone: string) {
   const client = await pool.connect();
   try {
@@ -166,6 +182,20 @@ export async function updateUserVotePhoneConfirmed(phone: string) {
     };
     const { rows } = await client.query(query);
     return rows[0] as unknown as UserVote;
+  } finally {
+    client.release();
+  }
+}
+
+export async function updatePhoneUserVote(phone: string, id: number) {
+  const client = await pool.connect();
+  try {
+    const query = {
+      text: 'UPDATE users_vote SET phone = ($1) WHERE id = ($2)',
+      values: [phone, id],
+      rowMode: 'single'
+    };
+    await client.query(query);
   } finally {
     client.release();
   }

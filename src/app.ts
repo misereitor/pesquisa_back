@@ -11,6 +11,7 @@ import associateCategoryCompanyRouter from './router/association-category-compan
 import { dictionaryRouter } from './router/dictionary.router';
 import { reportsRouter } from './router/reports.router';
 import { userAdminRouter } from './router/user-admin.router';
+import { userVoteRouter } from './router/user-vote.router';
 
 const app: Application = express();
 
@@ -37,5 +38,6 @@ app.use('/api', associateCategoryCompanyRouter);
 app.use('/api', dictionaryRouter);
 app.use('/api', reportsRouter);
 app.use('/api', userAdminRouter);
+app.use('/api', userVoteRouter);
 
 export { app };
