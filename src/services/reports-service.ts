@@ -1,4 +1,4 @@
-import { CategoryVotes, GraphReport } from '../model/votes';
+import { CategoryVotes, GraphReport, TotalCountForUser } from '../model/votes';
 import { getAllCategoryByReportGeral } from '../repository/category';
 import {
   getAllPorcentageByUserVote,
@@ -26,17 +26,23 @@ export async function getAllDataFromDashboard() {
     getAllUserVoteForTime(),
     getTotalVotesByCity()
   ]);
-  const graphReport = graphReportMount(votesCategory);
+  const graphReport = graphReportMount(votesCategory, countVotes);
   return { votesCategory, countVotes, usersVote, totalCity, graphReport };
 }
 
 export async function getAllGraphReport() {
-  const votesCategory = await getAllDataReportCategory();
-  const graphReport = graphReportMount(votesCategory);
+  const [votesCategory, countVotes] = await Promise.all([
+    getAllDataReportCategory(),
+    getCountVotesByUser()
+  ]);
+  const graphReport = graphReportMount(votesCategory, countVotes);
   return graphReport;
 }
 
-const graphReportMount = (votesCategory: CategoryVotes[]) => {
+const graphReportMount = (
+  votesCategory: CategoryVotes[],
+  countVotes: TotalCountForUser
+) => {
   const graphReport: GraphReport[] = votesCategory.map((e) => {
     const companies = e.companies.sort((a, b) => b.value - a.value);
     const filterCompany = companies.slice(0, 3);
@@ -48,13 +54,17 @@ const graphReportMount = (votesCategory: CategoryVotes[]) => {
       };
       return dataFilter;
     });
-
+    const blankVotes = {
+      name: 'Brancos',
+      value: e.total - countVotes.total_confirmed_true
+    };
     const outer = {
       name: 'Outros',
       value: 0
     };
     outerCompany.forEach((e) => (outer.value += e.value));
     data.push(outer);
+    data.push(blankVotes);
     const res = {
       category_name: e.category_name,
       companies: data
