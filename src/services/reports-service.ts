@@ -56,7 +56,7 @@ const graphReportMount = (
     });
     const blankVotes = {
       name: 'Brancos',
-      value: e.total - countVotes.total_confirmed_true
+      value: countVotes.total_confirmed_true - e.total
     };
     const outer = {
       name: 'Outros',
