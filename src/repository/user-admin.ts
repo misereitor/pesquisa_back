@@ -1,145 +1,131 @@
 import pool from '../config/db';
 import { UserAdmin } from '../model/user-admin';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+
+// 1. Função auxiliar para converter 0/1 para boolean
+const mapUserAdmin = (row: any): UserAdmin => {
+  if (!row) return row;
+  return {
+    ...row,
+    active: Boolean(row.active) // Converte 1 -> true, 0 -> false
+  };
+};
 
 export async function createUserAdmin(user: UserAdmin) {
-  const client = await pool.connect();
+  const query = `
+    INSERT INTO users_admin
+      (name, username, password, email, role)
+    VALUES
+      (?, ?, ?, ?, ?)
+  `;
+  console.log(user.name, user.username, user.password, user.email, user.role);
+
   try {
-    const query = {
-      text: `
-      INSERT INTO users_admin
-        (name, username, password, email, last_ip, role)
-      VALUES
-        ($1, $2, $3, $4, $5, $6) RETURNING *
-      `,
-      values: [
-        user.name,
-        user.username,
-        user.password,
-        user.email,
-        user.last_ip,
-        user.role
-      ],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserAdmin;
-  } finally {
-    client.release();
+    const [result] = await pool.execute<ResultSetHeader>(query, [
+      user.name,
+      user.username,
+      user.password,
+      user.email,
+      user.role
+    ]);
+    return { ...user, id: result.insertId, active: true };
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getUserAdminById(id: number) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_admin WHERE id = ?';
   try {
-    const query = {
-      text: 'SELECT * FROM users_admin WHERE id = ($1)',
-      values: [id],
-      rowMode: 'single'
-    };
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
 
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserAdmin;
-  } finally {
-    client.release();
+    return mapUserAdmin(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getUserAdminByUsername(username: string) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_admin WHERE username LIKE ?';
   try {
-    const query = {
-      text: 'SELECT * FROM users_admin WHERE username like $1',
-      values: [username],
-      rowMode: 'single'
-    };
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [username]);
 
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserAdmin;
-  } finally {
-    client.release();
+    return mapUserAdmin(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllUserAdmin() {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_admin WHERE active = 1';
   try {
-    const query = {
-      text: 'SELECT * FROM users_admin WHERE active = true'
-    };
-    const { rows } = await client.query(query);
-    return rows as unknown as UserAdmin[];
-  } finally {
-    client.release();
+    const [rows] = await pool.query<RowDataPacket[]>(query);
+
+    return rows.map(mapUserAdmin);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateUserAdmin(user: UserAdmin) {
-  const client = await pool.connect();
+  // MySQL não tem RETURNING *, então fazemos o update e retornamos o objeto que recebemos
+  const query =
+    'UPDATE users_admin SET name = ?, username = ?, email = ? WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_admin SET name = $1, username = $2, email = $3 WHERE id = $4 RETURNING *',
-      values: [user.name, user.username, user.email, user.id],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserAdmin;
-  } finally {
-    client.release();
+    await pool.execute(query, [user.name, user.username, user.email, user.id]);
+
+    return user;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateRoleUserAdmin(id: number, role: string) {
-  const client = await pool.connect();
+  const query = 'UPDATE users_admin SET role = ? WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_admin SET role = $1 WHERE id = $2 RETURNING *',
-      values: [role, id],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserAdmin;
-  } finally {
-    client.release();
+    await pool.execute(query, [role, id]);
+
+    // Como alteramos apenas um campo e precisamos retornar o objeto completo, buscamos ele novamente
+    return getUserAdminById(id);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updatePasswordUserAdmin(id: number, password: string) {
-  const client = await pool.connect();
+  const query = 'UPDATE users_admin SET password = ? WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_admin SET password = $1 WHERE id = $2',
-      values: [password, id],
-      rowMode: 'single'
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [password, id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function deleteUserAdminById(id: number) {
-  const client = await pool.connect();
+  // Soft delete: seta active para 0 (false)
+  const query = 'UPDATE users_admin SET active = 0 WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_admin SET active = false WHERE id = $1',
-      values: [id]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getPasswordMaster(password: string) {
-  const client = await pool.connect();
+  const query = 'SELECT * from master_password WHERE password LIKE ?';
   try {
-    const query = {
-      text: 'SELECT * from master_password WHERE password like $1',
-      values: [password]
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [password]);
     return rows;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

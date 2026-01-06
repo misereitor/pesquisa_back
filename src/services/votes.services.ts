@@ -2,7 +2,6 @@ import { UserVote } from '../model/user-vote';
 import { Vote, VotesConfirmed } from '../model/votes';
 import { getAllCategory } from '../repository/category';
 import { getAllCompany } from '../repository/company';
-import { getAllDictionaryEntries } from '../repository/dictionary';
 import { updateUserVoteAfterVoteConfirm } from '../repository/user-vote';
 import {
   getVoteInCacheById,
@@ -17,14 +16,12 @@ import {
 } from '../repository/votes';
 
 export async function getAllDataForVoteService(id: number) {
-  const [companiesData, categoriesData, userVotesData, dictionaryData] =
-    await Promise.all([
-      getAllCompany(),
-      getAllCategory(),
-      getAllVotesInCache(id),
-      getAllDictionaryEntries()
-    ]);
-  return { companiesData, categoriesData, userVotesData, dictionaryData };
+  const [companiesData, categoriesData, userVotesData] = await Promise.all([
+    getAllCompany(),
+    getAllCategory(),
+    getAllVotesInCache(id)
+  ]);
+  return { companiesData, categoriesData, userVotesData };
 }
 
 export async function createVoteInCacheService(vote: Vote) {
@@ -51,7 +48,7 @@ async function updateVotesUserVoteConfirmation(userVote: UserVote) {
   const votes: VotesConfirmed[] = await getAllVotesConfirmedFromUser(
     userVote.id
   );
-  await updateUserVoteAfterVoteConfirm(userVote, votes);
+  await updateUserVoteAfterVoteConfirm(userVote);
   await batchInsertVotesFromVotes(votes);
   await incrementVoteForCity(userVote.city);
 }

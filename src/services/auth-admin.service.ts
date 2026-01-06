@@ -37,11 +37,11 @@ export async function registerUserService(userAdmin: UserAdmin) {
   if (user && user.active) {
     throw new AppError('Usuário já criado', 302);
   }
-
   schemaAddUserAdmin.parse(userAdmin);
   const hashPassword = await bcrypt.hash(userAdmin.password, 10);
   if (!user) {
     userAdmin.password = hashPassword;
+    console.log(userAdmin);
     const register = await createUserAdmin(userAdmin);
     register.password = '';
     return register;

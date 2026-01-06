@@ -33,7 +33,8 @@ export const exportCSVGeral = (
       user.percentage_vote ? `${Number(user.percentage_vote).toFixed(0)}%` : '',
       regexCPF(user.cpf),
       regexPhone(user.phone),
-      user.uf,
+      user.country,
+      user.state,
       user.city,
       formatDate(user.date_create),
       formatDate(user.date_vote)

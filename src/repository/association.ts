@@ -3,177 +3,185 @@ import {
   AssociationCompanyAndCategory,
   ImportCSV
 } from '../model/association-company-category';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+
+// Função auxiliar para converter tipos MySQL para o modelo da Aplicação
+const mapAssociation = (row: any): AssociationCompanyAndCategory => {
+  return {
+    ...row,
+    active: Boolean(row.active), // Converte 1/0 para true/false
+    // Se companies vier como string (comum em subqueries JSON), faz o parse
+    companies:
+      typeof row.companies === 'string'
+        ? JSON.parse(row.companies)
+        : row.companies || []
+  };
+};
 
 export async function createAssociationCategory(
   id_category: number,
   id_company: number
 ) {
-  const client = await pool.connect();
+  const query = `
+    INSERT IGNORE INTO category_company_association
+      (id_category, id_company)
+    VALUES
+      (?, ?) 
+  `;
   try {
-    const query = {
-      text: `
-      INSERT INTO category_company_association
-        (id_category, id_company)
-      VALUES
-        ($1, $2) 
-      ON CONFLICT DO NOTHING
-      `,
-      values: [id_category, id_company],
-      rowMode: 'single'
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id_category, id_company]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function importCSV(data: ImportCSV) {
-  const client = await pool.connect();
+  const connection = await pool.getConnection();
 
   try {
-    await client.query('BEGIN');
+    await connection.beginTransaction();
 
-    // Insere ou encontra a empresa
-    const companyQuery = `
+    // --- 1. Empresa ---
+    let companyId: number;
+    const insertCompanyQuery = `
       INSERT INTO company (trade_name, company_name, cnpj, associate)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (trade_name) DO UPDATE
-      SET company_name = EXCLUDED.company_name,
-          cnpj = EXCLUDED.cnpj,
-          associate = EXCLUDED.associate
-      RETURNING id;
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+          company_name = VALUES(company_name),
+          cnpj = VALUES(cnpj),
+          associate = VALUES(associate)
     `;
-    const companyValues = [
-      data.trade_name,
-      data.company_name,
-      data.cnpj,
-      data.associate
-    ];
-    const companyResult = await client.query(companyQuery, companyValues);
-    const companyId = companyResult.rows[0].id;
 
-    // Itera pelas categorias e cria associações
+    const [companyResult] = await connection.execute<ResultSetHeader>(
+      insertCompanyQuery,
+      [data.trade_name, data.company_name, data.cnpj, data.associate]
+    );
+
+    if (companyResult.insertId > 0) {
+      companyId = companyResult.insertId;
+    } else {
+      const [rows] = await connection.execute<RowDataPacket[]>(
+        'SELECT id FROM company WHERE trade_name = ?',
+        [data.trade_name]
+      );
+      companyId = rows[0].id;
+    }
+
+    // --- 2. Categorias ---
     if (data.category && data.category.length > 0) {
       for (const categoryName of data.category) {
-        // Insere ou encontra a categoria
-        const categoryQuery = `
-          INSERT INTO category (name)
-          VALUES ($1)
-          ON CONFLICT (name) DO NOTHING
-          RETURNING id;
-        `;
-        const categoryResult = await client.query(categoryQuery, [
-          categoryName
-        ]);
+        const insertCategoryQuery = `INSERT IGNORE INTO category (name) VALUES (?)`;
+        const [catResult] = await connection.execute<ResultSetHeader>(
+          insertCategoryQuery,
+          [categoryName]
+        );
 
         let categoryId: number;
-        if (categoryResult.rows.length > 0) {
-          categoryId = categoryResult.rows[0].id;
+        if (catResult.insertId > 0) {
+          categoryId = catResult.insertId;
         } else {
-          const selectCategoryQuery = `SELECT id FROM category WHERE name = $1`;
-          const selectCategoryResult = await client.query(selectCategoryQuery, [
-            categoryName
-          ]);
-          categoryId = selectCategoryResult.rows[0].id;
+          const [rows] = await connection.execute<RowDataPacket[]>(
+            'SELECT id FROM category WHERE name = ?',
+            [categoryName]
+          );
+          categoryId = rows[0].id;
         }
 
-        // Cria associação
         const associationQuery = `
-          INSERT INTO category_company_association (id_category, id_company)
-          VALUES ($1, $2)
-          ON CONFLICT (id_category, id_company) DO NOTHING;
+          INSERT IGNORE INTO category_company_association (id_category, id_company)
+          VALUES (?, ?)
         `;
-        await client.query(associationQuery, [categoryId, companyId]);
+        await connection.execute(associationQuery, [categoryId, companyId]);
       }
     }
 
-    await client.query('COMMIT');
+    await connection.commit();
   } catch (e: any) {
-    await client.query('ROLLBACK');
+    await connection.rollback();
     throw e;
   } finally {
-    client.release();
+    connection.release();
   }
 }
 
 export async function getAllAssociation() {
-  const client = await pool.connect();
-  try {
-    const query = {
-      text: `
-      SELECT
-        c.id AS id,
-        c.name AS name,
-        c.active AS active,
-        c.date_create AS date_create,
-        COALESCE(
-          JSON_AGG(
-            DISTINCT JSONB_BUILD_OBJECT(
-              'id', co.id,
-              'trade_name', co.trade_name,
-              'company_name', co.company_name,
-              'cnpj', co.cnpj,
-              'associate', co.associate,
-              'active', co.active,
-              'date_create', co.date_create
+  const query = `
+    SELECT
+      c.id AS id,
+      c.name AS name,
+      c.active AS active,
+      c.date_create AS date_create,
+      COALESCE(
+        (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'id', co.id,
+                    'trade_name', co.trade_name,
+                    'company_name', co.company_name,
+                    'cnpj', co.cnpj,
+                    'associate', co.associate,
+                    'active', co.active,
+                    'date_create', co.date_create
+                )
             )
-          ) FILTER (WHERE co.id IS NOT NULL),
-          '[]'
-        ) AS companies
-      FROM category c
-      LEFT JOIN category_company_association cca
-        ON c.id = cca.id_category
-      LEFT JOIN company co
-        ON co.id = cca.id_company
-      GROUP BY c.id, c.name, c.active, c.date_create;
-      `
-    };
-    const { rows } = await client.query(query);
-    return rows as unknown as AssociationCompanyAndCategory[];
-  } finally {
-    client.release();
+            FROM category_company_association cca
+            JOIN company co ON co.id = cca.id_company
+            WHERE cca.id_category = c.id
+        ),
+        JSON_ARRAY()
+      ) AS companies
+    FROM category c
+    ORDER BY c.id;
+  `;
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(query);
+
+    // Mapeia cada linha para corrigir os tipos
+    return rows.map(mapAssociation);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAssociationByCategoryId(id: number) {
-  const client = await pool.connect();
-  try {
-    const query = {
-      text: `
-      SELECT
-        c.id AS id,
-        c.name AS name,
-        c.active AS active,
-        c.date_create AS date_create,
-        COALESCE(
-          JSON_AGG(
-            DISTINCT JSONB_BUILD_OBJECT(
-              'id', co.id,
-              'trade_name', co.trade_name,
-              'company_name', co.company_name,
-              'cnpj', co.cnpj,
-              'associate', co.associate,
-              'active', co.active,
-              'date_create', co.date_create
+  const query = `
+    SELECT
+      c.id AS id,
+      c.name AS name,
+      c.active AS active,
+      c.date_create AS date_create,
+      COALESCE(
+        (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'id', co.id,
+                    'trade_name', co.trade_name,
+                    'company_name', co.company_name,
+                    'cnpj', co.cnpj,
+                    'associate', co.associate,
+                    'active', co.active,
+                    'date_create', co.date_create
+                )
             )
-          ) FILTER (WHERE co.id IS NOT NULL),
-          '[]'
-        ) AS companies
-      FROM category c
-      LEFT JOIN category_company_association cca
-        ON c.id = cca.id_category
-      LEFT JOIN company co
-        ON co.id = cca.id_company
-      WHERE c.id = $1
-      GROUP BY c.id, c.name, c.active, c.date_create;
-      `,
-      values: [id],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as AssociationCompanyAndCategory;
-  } finally {
-    client.release();
+            FROM category_company_association cca
+            JOIN company co ON co.id = cca.id_company
+            WHERE cca.id_category = c.id
+        ),
+        JSON_ARRAY()
+      ) AS companies
+    FROM category c
+    WHERE c.id = ?
+  `;
+  try {
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
+
+    if (!rows[0]) return null as unknown as AssociationCompanyAndCategory;
+    return mapAssociation(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
@@ -181,16 +189,13 @@ export async function deleteAssociation(
   id_category: number,
   id_company: number
 ) {
-  const client = await pool.connect();
+  const query = `
+    DELETE FROM category_company_association WHERE id_category = ? and id_company = ?
+  `;
   try {
-    const query = {
-      text: `
-      DELETE FROM category_company_association WHERE id_category = $1 and id_company = $2
-      `,
-      values: [id_category, id_company]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id_category, id_company]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

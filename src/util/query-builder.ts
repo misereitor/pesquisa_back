@@ -1,3 +1,6 @@
+import { ResultSetHeader } from 'mysql2/promise';
+import pool from '../config/db';
+
 export const buildUpdateQuery = (table: string, data: Partial<any>) => {
   const keys = Object.keys(data);
   const values = Object.values(data);
@@ -10,7 +13,7 @@ export const buildUpdateQuery = (table: string, data: Partial<any>) => {
     .map((key, index) => `${key} = $${index + 1}`)
     .join(', ');
 
-  const text = `UPDATE ${table} SET ${setString} WHERE id = ${data.id} RETURNING *`;
+  const text = `UPDATE ${table} SET ${setString} WHERE id = ${data.id}`;
 
   return { text, values };
 };
@@ -23,7 +26,7 @@ export const createAssociationCategoriesBuildQuery = (data: Partial<any>) => {
     const values = Object.values(data[i]);
     placeholders.push(`(${values})`);
   }
-  const text = `INSERT INTO category_company_association (${fields}) VALUES ${placeholders} ON CONFLICT (${fields}) DO NOTHING RETURNING *`;
+  const text = `INSERT INTO category_company_association (${fields}) VALUES ${placeholders} ON CONFLICT (${fields})`;
   return { text };
 };
 
@@ -35,11 +38,11 @@ export const createCategoriesBuildQuery = (data: Partial<any>) => {
     const values = Object.values(data[i]);
     placeholders.push(`(${values})`);
   }
-  const text = `INSERT INTO category (${fields}) VALUES ${placeholders} RETURNING *`;
+  const text = `INSERT INTO category (${fields}) VALUES ${placeholders}`;
   return { text };
 };
 
-export const createCompaniesBuildQuery = (data: Partial<any>) => {
+export const createCompaniesBuildQuery = async (data: Partial<any>) => {
   const keys = Object.keys(data[0]);
   const fields = keys.join(', ');
   const placeholders = [];
@@ -49,6 +52,7 @@ export const createCompaniesBuildQuery = (data: Partial<any>) => {
       .join(', ');
     placeholders.push(`(${values})`);
   }
-  const text = `INSERT INTO company (${fields}) VALUES ${placeholders} RETURNING *`;
-  return { text };
+  const text = `INSERT INTO company (${fields}) VALUES ${placeholders}`;
+  const [result] = await pool.execute<ResultSetHeader>(text);
+  return result.insertId;
 };

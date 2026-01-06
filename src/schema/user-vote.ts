@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   validateName,
   validateNameIsNumber,
-  validatePhone,
   validateCPF
 } from '../util/validate-user-vote';
 
@@ -23,9 +22,10 @@ export const schemaUserVote = z.object({
       });
     }
   }),
-  phone: z.string().refine((val) => !validatePhone(val), 'Telefone Inválido!'),
+  phone: z.string(),
   cpf: z.string().refine((val) => !validateCPF(val), 'CPF inválido!'),
-  uf: z.string().length(2),
+  state: z.string(),
+  country: z.string(),
   city: z.string()
 });
 

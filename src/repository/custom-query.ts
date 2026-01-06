@@ -1,15 +1,13 @@
-import pool from '../config/db';
+import pool from '../config/db'; // Importa o pool do mysql2/promise
 
-export async function queryCuston(text: string, values: any) {
-  const client = await pool.connect();
+export async function customQuery(text: string, values: any) {
   try {
-    const query = {
-      text,
-      values
-    };
-    const rows = await client.query(query);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [rows, fields] = await pool.execute(text, values);
+
     return rows;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

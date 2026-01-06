@@ -5,7 +5,8 @@ export interface UserVote {
   name: string;
   phone: string;
   cpf: string;
-  uf: string;
+  country: string;
+  state: string;
   city: string;
   confirmed_vote: boolean;
   try_code_send: number;

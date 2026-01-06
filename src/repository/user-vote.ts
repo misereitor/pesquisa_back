@@ -1,251 +1,231 @@
 import pool from '../config/db';
 import { UserVote } from '../model/user-vote';
-import { VotesConfirmed } from '../model/votes';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+
+// Função auxiliar para corrigir tipos do UserVote
+const mapUserVote = (row: any): UserVote => {
+  if (!row) return row;
+  return {
+    ...row,
+    // MySQL retorna TINYINT (0 ou 1), converte para Boolean
+    confirmed_vote: Boolean(row.confirmed_vote),
+    confirmed_phone: Boolean(row.confirmed_phone),
+    // Garante que o campo JSON seja um objeto/array e não string
+    votes: typeof row.votes === 'string' ? JSON.parse(row.votes) : row.votes
+  };
+};
 
 export async function createUserVote(user: UserVote) {
-  const client = await pool.connect();
+  const query = `
+    INSERT INTO users_vote
+    (name, phone, cpf, country, state, city)
+    VALUES
+    (?, ?, ?, ?, ?, ?)
+  `;
+  console.log(user);
   try {
-    const query = {
-      text: `
-      INSERT INTO users_vote
-      (name, phone, cpf, uf, city, last_ip, date_create)
-        VALUES
-      ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo') RETURNING *
-      `,
-      values: [
-        user.name,
-        user.phone,
-        user.cpf,
-        user.uf,
-        user.city,
-        user.last_ip
-      ],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    const [result] = await pool.execute<ResultSetHeader>(query, [
+      user.name,
+      user.phone,
+      user.cpf,
+      user.country,
+      user.state,
+      user.city
+    ]);
+
+    // Retornamos o objeto user original atualizado com o ID (os booleanos já estão corretos na entrada)
+    return { ...user, id: result.insertId };
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getUserVoteById(id: number) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_vote WHERE id = ?';
   try {
-    const query = {
-      text: 'SELECT * FROM users_vote WHERE id = ($1)',
-      values: [id],
-      rowMode: 'single'
-    };
-
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
+    return mapUserVote(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllUserVote() {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_vote ORDER BY name';
   try {
-    const query = {
-      text: 'SELECT * FROM users_vote ORDER BY name'
-    };
-    const { rows } = await client.query(query);
-    return rows as unknown as UserVote[];
-  } finally {
-    client.release();
+    const [rows] = await pool.query<RowDataPacket[]>(query);
+    return rows.map(mapUserVote);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllPorcentageByUserVote() {
-  const client = await pool.connect();
+  // Aqui retorna só parciais, então não precisa de mapeamento completo,
+  // mas se tiver campos booleanos no futuro, use o map.
+  const query =
+    'SELECT id, name, percentage_vote FROM users_vote ORDER BY name';
   try {
-    const query = {
-      text: 'SELECT id, name, percentage_vote FROM users_vote ORDER BY name'
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.query(query);
     return rows as unknown as UserVote[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllUserVotePagination(limit: number, offset: number) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_vote ORDER BY name LIMIT ? OFFSET ?';
   try {
-    const query = {
-      text: `SELECT * FROM users_vote ORDER BY name LIMIT ${limit} OFFSET ${offset}`
-    };
-    const { rows } = await client.query(query);
-    return rows as unknown as UserVote[];
-  } finally {
-    client.release();
+    // Atenção: Limit e Offset precisam ser passados como Number ou String numérica
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [
+      limit.toString(),
+      offset.toString()
+    ]);
+    return rows.map(mapUserVote);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getTotalCountForUser() {
-  const client = await pool.connect();
+  // MySQL retorna number para COUNT, Postgres retornava string.
+  const query = 'SELECT COUNT(ID) AS total FROM users_vote';
   try {
-    const query = {
-      text: `SELECT COUNT(ID) AS total FROM users_vote as total;`
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.query<RowDataPacket[]>(query);
     return rows[0] as unknown as { total: number };
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllUserVoteForTime() {
-  const client = await pool.connect();
+  const query = 'SELECT date_vote FROM users_vote';
   try {
-    const query = {
-      text: 'SELECT date_vote FROM users_vote'
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.query(query);
     return rows as unknown as UserVote[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getUserVoteFromCPF(cpf: string) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_vote WHERE cpf = ?';
   try {
-    const query = {
-      text: 'SELECT * FROM users_vote WHERE cpf = ($1)',
-      values: [cpf],
-      rowMode: 'single'
-    };
-
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [cpf]);
+    return mapUserVote(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getUserVoteFromCPFByAdmin(cpf: string) {
-  const client = await pool.connect();
+  const query =
+    'SELECT id, name, phone, cpf, confirmed_phone, confirmed_vote FROM users_vote WHERE cpf = ?';
   try {
-    const query = {
-      text: 'SELECT id, name, phone, cpf, confirmed_phone, confirmed_vote FROM users_vote WHERE cpf = ($1)',
-      values: [cpf],
-      rowMode: 'single'
-    };
-
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [cpf]);
+    return mapUserVote(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getUserVoteFromPhone(phone: string) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_vote WHERE phone = ?';
   try {
-    const query = {
-      text: 'SELECT * FROM users_vote WHERE phone = ($1)',
-      values: [phone],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [phone]);
+    return mapUserVote(rows[0]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateUserVote(user: UserVote) {
-  const client = await pool.connect();
+  const query =
+    'UPDATE users_vote SET name = ?, country = ?, state = ?, city = ? WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_vote SET name = ($1), uf = ($2), city = ($3) WHERE id = ($4) RETURNING *',
-      values: [user.name, user.uf, user.city, user.id],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    await pool.execute(query, [
+      user.name,
+      user.country,
+      user.state,
+      user.city,
+      user.id
+    ]);
+    // Retorna o próprio objeto enviado, assumindo que ele está com os dados corretos
+    return user;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateUserVotePhoneConfirmed(phone: string) {
-  const client = await pool.connect();
+  const query = 'UPDATE users_vote SET confirmed_phone = 1 WHERE phone = ?';
   try {
-    const query = {
-      text: 'UPDATE users_vote SET confirmed_phone = true WHERE phone = ($1) RETURNING *',
-      values: [phone],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as UserVote;
-  } finally {
-    client.release();
+    await pool.execute(query, [phone]);
+
+    // Busca o usuário atualizado para retornar os dados corretos do banco
+    return getUserVoteFromPhone(phone);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updatePhoneUserVote(phone: string, id: number) {
-  const client = await pool.connect();
+  const query = 'UPDATE users_vote SET phone = ? WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_vote SET phone = ($1) WHERE id = ($2)',
-      values: [phone, id],
-      rowMode: 'single'
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [phone, id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateTrySendCode(user: UserVote) {
-  const client = await pool.connect();
+  const query = 'UPDATE users_vote SET try_code_send = ? WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE users_vote SET try_code_send = $1 WHERE id = ($2)',
-      values: [user.try_code_send++, user.id],
-      rowMode: 'single'
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [user.try_code_send + 1, user.id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
-export async function updateUserVoteAfterVoteConfirm(
-  userVote: UserVote,
-  votes: VotesConfirmed[]
-) {
-  const client = await pool.connect();
+export async function updateUserVoteAfterVoteConfirm(userVote: UserVote) {
+  const query = `
+    UPDATE users_vote
+    SET 
+      confirmed_vote = 1, 
+      date_vote = NOW(),
+      percentage_vote = ? 
+    WHERE id = ?
+  `;
   try {
-    const query = {
-      text: `
-      UPDATE users_vote
-      SET 
-        confirmed_vote = true, date_vote = CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo',
-        percentage_vote = $2, votes = $3
-      WHERE ID = $1
-      `,
-      values: [userVote.id, userVote.percentage_vote, JSON.stringify(votes)]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    // Converte o array de votos para string JSON explicitamente
+    await pool.execute(query, [userVote.percentage_vote, userVote.id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllUserVoteVoted() {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM users_vote where confirmed_vote = 1';
   try {
-    const query = {
-      text: 'SELECT * FROM users_vote where confirmed'
-    };
-    const { rows } = await client.query(query);
-    return rows as unknown as UserVote[];
-  } finally {
-    client.release();
+    const [rows] = await pool.query<RowDataPacket[]>(query);
+    return rows.map(mapUserVote);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

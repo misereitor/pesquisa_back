@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { config } from 'dotenv';
+import { env } from '../config/env';
 
-config();
-const { X_API_KEY } = process.env;
+const X_API_KEY = env.X_API_KEY;
 
 export const validateApiKey = (
   req: Request,

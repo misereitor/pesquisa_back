@@ -6,159 +6,146 @@ import {
   Vote,
   VotesConfirmed
 } from '../model/votes';
+import { RowDataPacket } from 'mysql2';
 
 export async function createVoteInCache(vote: Vote) {
-  const client = await pool.connect();
+  const query = `
+    INSERT INTO vote_not_confirmed
+    (id_user_vote, id_category, id_company)
+    VALUES
+    (?, ?, ?)
+  `;
   try {
-    const query = {
-      text: `
-      INSERT INTO vote_not_confirmed
-      (id_user_vote, id_category, id_company)
-        VALUES
-      ($1, $2, $3)
-      `,
-      values: [vote.id_user_vote, vote.id_category, vote.id_company]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [
+      vote.id_user_vote,
+      vote.id_category,
+      vote.id_company
+    ]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllVotesInCache(id_user_vote: number) {
-  const client = await pool.connect();
+  const query = `
+    SELECT * FROM vote_not_confirmed WHERE id_user_vote = ?
+  `;
   try {
-    const query = {
-      text: `
-      SELECT * FROM vote_not_confirmed WHERE id_user_vote = $1
-      `,
-      values: [id_user_vote]
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.execute(query, [id_user_vote]);
     return rows as unknown as Vote[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getVoteInCacheById(vote: Vote) {
-  const client = await pool.connect();
+  const query = `
+    SELECT * FROM vote_not_confirmed WHERE id_user_vote = ? AND id_category = ? LIMIT 1
+  `;
   try {
-    const query = {
-      text: `
-      SELECT * FROM vote_not_confirmed WHERE id_user_vote = $1 AND id_category = $2
-      `,
-      values: [vote.id_user_vote, vote.id_category],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [
+      vote.id_user_vote,
+      vote.id_category
+    ]);
     return rows[0] as unknown as Vote;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateVoteInCache(vote: Vote) {
-  const client = await pool.connect();
+  const query = `
+    UPDATE vote_not_confirmed SET id_company = ? WHERE id_user_vote = ? AND id_category = ?
+  `;
   try {
-    const query = {
-      text: `
-      UPDATE vote_not_confirmed SET id_company = $3 WHERE id_user_vote = $1 AND id_category = $2
-      `,
-      values: [vote.id_user_vote, vote.id_category, vote.id_company]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    // Atenção à ordem dos parâmetros: id_company (SET), depois id_user_vote e id_category (WHERE)
+    await pool.execute(query, [
+      vote.id_company,
+      vote.id_user_vote,
+      vote.id_category
+    ]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function confirmVote(id_user_vote: number) {
-  const client = await pool.connect();
+  // MySQL usa ON DUPLICATE KEY UPDATE em vez de ON CONFLICT
+  const query = `
+    INSERT INTO votes (id_user_vote, id_category, id_company)
+    SELECT id_user_vote, id_category, id_company
+    FROM vote_not_confirmed
+    WHERE id_user_vote = ?
+    ON DUPLICATE KEY UPDATE 
+      id_company = VALUES(id_company)
+  `;
   try {
-    const query = {
-      text: `
-        INSERT INTO votes (id_user_vote, id_category, id_company)
-        SELECT id_user_vote, id_category, id_company
-        FROM vote_not_confirmed
-        WHERE id_user_vote = $1
-        ON CONFLICT (id_user_vote, id_category)
-        DO UPDATE SET 
-          id_company = EXCLUDED.id_company
-      `,
-      values: [id_user_vote]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id_user_vote]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function deleteVoteInCache(id_user_vote: number) {
-  const client = await pool.connect();
+  const query = `
+    DELETE FROM vote_not_confirmed WHERE id_user_vote = ?
+  `;
   try {
-    const query = {
-      text: `
-      DELETE FROM vote_not_confirmed WHERE id_user_vote = $1
-      `,
-      values: [id_user_vote]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id_user_vote]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllVotesConfirmedFromUser(id_user_vote: number) {
-  const client = await pool.connect();
+  const query = `
+    SELECT 
+      v.id_category, 
+      v.id_company, 
+      c.trade_name, 
+      cat.name as category_name
+    FROM 
+      votes v
+    JOIN 
+      company c ON v.id_company = c.id
+    JOIN 
+      category cat ON v.id_category = cat.id
+    WHERE 
+      v.id_user_vote = ?;
+  `;
   try {
-    const query = {
-      text: `
-      SELECT 
-        v.id_category, 
-        v.id_company, 
-        c.trade_name, 
-        cat.name as category_name
-      FROM 
-        votes v
-      JOIN 
-        company c ON v.id_company = c.id
-      JOIN 
-        category cat ON v.id_category = cat.id
-      WHERE 
-        v.id_user_vote = $1;
-      `,
-      values: [id_user_vote]
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.execute(query, [id_user_vote]);
     return rows as unknown as VotesConfirmed[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function incrementVoteForCity(city: string) {
-  const client = await pool.connect();
+  const query = `
+    INSERT INTO voting_city (city, total_votes)
+    VALUES (?, 1)
+    ON DUPLICATE KEY UPDATE total_votes = total_votes + 1;
+  `;
   try {
-    const query = {
-      text: `
-        INSERT INTO voting_city (city, total_votes)
-        VALUES ($1, 1)
-        ON CONFLICT (city)
-        DO UPDATE SET total_votes = voting_city.total_votes + 1;
-      `,
-      values: [city]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [city]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function batchInsertVotesFromVotes(votes: VotesConfirmed[]) {
-  const client = await pool.connect();
+  if (votes.length === 0) return;
   try {
-    // Mapeia os votos para calcular o total de votos por categoria e empresa
+    // Lógica de agregação (Mantida do original)
     const aggregatedVotes: {
       [key: string]: {
         id_category: number;
@@ -173,7 +160,7 @@ export async function batchInsertVotesFromVotes(votes: VotesConfirmed[]) {
         aggregatedVotes[key] = {
           id_category: vote.id_category,
           id_company: vote.id_company,
-          total_votes: 1 // Cada voto conta como 1
+          total_votes: 1
         };
       } else {
         aggregatedVotes[key].total_votes += 1;
@@ -182,14 +169,14 @@ export async function batchInsertVotesFromVotes(votes: VotesConfirmed[]) {
 
     const uniqueVotes = Object.values(aggregatedVotes);
 
+    // No MySQL não precisamos de índices numéricos ($1, $2...), apenas '?' repetidos
+    const placeholders = uniqueVotes.map(() => '(?, ?, ?)').join(', ');
+
     const query = `
-      INSERT INTO category_votes (id_category, id_company, total_votes)
-      VALUES ${uniqueVotes
-        .map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`)
-        .join(', ')}
-      ON CONFLICT (id_category, id_company)
-      DO UPDATE SET total_votes = category_votes.total_votes + EXCLUDED.total_votes;
-    `;
+    INSERT INTO category_votes (id_category, id_company, total_votes)
+    VALUES ${placeholders}
+    ON DUPLICATE KEY UPDATE total_votes = category_votes.total_votes + VALUES(total_votes);
+  `;
 
     const values = uniqueVotes.flatMap((vote) => [
       vote.id_category,
@@ -197,75 +184,75 @@ export async function batchInsertVotesFromVotes(votes: VotesConfirmed[]) {
       vote.total_votes
     ]);
 
-    await client.query(query, values);
-  } finally {
-    client.release();
+    await pool.execute(query, values);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getVotesByCategory() {
-  const client = await pool.connect();
-  try {
-    const query = `
+  // Query reescrita para MySQL.
+  // Substituímos JSON_AGG/FILTER (Postgres) por Subquery + JSON_ARRAYAGG (MySQL)
+  const query = `
     SELECT 
       c.name AS category_name,
       COALESCE(
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-            'name', co.trade_name,
-            'value', cv.total_votes
+        (SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'name', co.trade_name,
+              'value', cv.total_votes
+            )
           )
-        ) FILTER (WHERE co.id IS NOT NULL),
-        '[]'::JSON
+         FROM category_votes cv
+         JOIN company co ON cv.id_company = co.id
+         WHERE cv.id_category = c.id
+        ),
+        JSON_ARRAY()
       ) AS companies
     FROM 
-      category_votes cv
-    JOIN 
-      category c ON cv.id_category = c.id
-    LEFT JOIN 
-      company co ON cv.id_company = co.id
-    GROUP BY 
-      c.id
+      category c
     ORDER BY 
       c.name;
-    `;
-    const { rows } = await client.query(query);
+  `;
+  try {
+    const [rows] = await pool.query(query); // pool.query é melhor para selects complexos sem args
     return rows as unknown as CategoryVotes[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getCountVotesByUser() {
-  const client = await pool.connect();
+  // Postgres usa FILTER (WHERE...), MySQL usa CASE WHEN
+  const query = `
+    SELECT
+      COUNT(id) AS total_items,
+      SUM(CASE WHEN confirmed_vote = 1 THEN 1 ELSE 0 END) AS total_confirmed_true,
+      SUM(CASE WHEN confirmed_vote = 0 THEN 1 ELSE 0 END) AS total_confirmed_false,
+      SUM(CASE WHEN percentage_vote >= 70 THEN 1 ELSE 0 END) AS total_percentage_above_70,
+      SUM(CASE WHEN percentage_vote < 70 THEN 1 ELSE 0 END) AS total_percentage_below_70
+    FROM users_vote;
+  `;
   try {
-    const query = `
-      SELECT
-        COUNT(id) AS total_items,
-        COUNT(id) FILTER (WHERE confirmed_vote = TRUE) AS total_confirmed_true,
-        COUNT(id) FILTER (WHERE confirmed_vote = FALSE) AS total_confirmed_false,
-        COUNT(id) FILTER (WHERE percentage_vote >= 70) AS total_percentage_above_70,
-        COUNT(id) FILTER (WHERE percentage_vote < 70) AS total_percentage_below_70
-      FROM users_vote;
-    `;
-    const { rows } = await client.query(query);
+    const [rows] = await pool.query<RowDataPacket[]>(query);
     return rows[0] as unknown as TotalCountForUser;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getTotalVotesByCity() {
-  const client = await pool.connect();
+  const query = `
+    SELECT city, total_votes AS total FROM voting_city ORDER BY total_votes DESC;
+  `;
   try {
-    const query = {
-      text: `
-        SELECT city, total_votes AS total FROM voting_city ORDER BY total_votes DESC;
-      `
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.query(query);
     return rows as unknown as TotalCountForCity[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

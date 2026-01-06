@@ -1,5 +1,5 @@
 import { UserVote } from '../model/user-vote';
-import { queryCuston } from '../repository/custom-query';
+import { customQuery } from '../repository/custom-query';
 import {
   deleteCodeConfirmed,
   getConfirmationUserVote
@@ -17,11 +17,11 @@ import { AppError } from '../util/errorHandler';
 import { buildUpdateQuery } from '../util/query-builder';
 import { createCode, sendMessage } from './whatsapp-sms.service';
 
-export async function checkUserRegistred(cpf: string) {
+export async function checkUserRegistered(cpf: string) {
   const userVote = await getUserVoteFromCPF(cpf);
   if (userVote) {
-    if (userVote.confirmed_vote)
-      throw new AppError('CPF já confirmou o voto', 404);
+    // if (userVote.confirmed_vote)
+    //   throw new AppError('CPF já confirmou o voto', 404);
     const code = await createCode(userVote);
     await sendMessage(code, userVote.phone);
     await updateTrySendCode(userVote);
@@ -83,7 +83,7 @@ async function checksUserExistsAndDataIsTrue(user: UserVote) {
 }
 
 export async function confirmCode(code: string, phone: string) {
-  const valide = await valideCode(code, phone);
+  const valide = await validateCode(code, phone);
   const deleteCode = await deleteCodeConfirmed(valide.id);
   const confirmUserCode = await updateUserVotePhoneConfirmed(phone);
   const gerateToken = createTokenUserVoting(phone, confirmUserCode.id);
@@ -95,7 +95,7 @@ export async function confirmCode(code: string, phone: string) {
   return login;
 }
 
-async function valideCode(code: string, phone: string) {
+async function validateCode(code: string, phone: string) {
   const getConfirmed = await getConfirmationUserVote(phone, code);
   if (!getConfirmed) {
     throw new AppError('Código incorreto', 401);
@@ -110,6 +110,6 @@ async function valideCode(code: string, phone: string) {
 
 async function updateUser(user: UserVote) {
   const updateUser = buildUpdateQuery('users_vote', user);
-  const { rows } = await queryCuston(updateUser.text, updateUser.values);
-  return rows[0] as unknown as UserVote;
+  const rows = await customQuery(updateUser.text, updateUser.values);
+  return rows as unknown as UserVote;
 }

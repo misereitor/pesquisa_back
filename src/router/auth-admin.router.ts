@@ -29,6 +29,7 @@ loginAdminRouter.post(
   '/admin/auth/registre',
   async (req: Request, res: Response) => {
     try {
+      console.log('aqui');
       const user: UserAdmin = req.body;
       const response = await registerUserService(user);
       res.status(200).json({ success: true, data: response });

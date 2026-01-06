@@ -1,140 +1,122 @@
 import pool from '../config/db';
 import { Company } from '../model/company';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 export async function createCompany(company: Company) {
-  const client = await pool.connect();
+  // MySQL não suporta RETURNING *. Pegamos o ID gerado do resultado.
+  const query = `
+    INSERT INTO company
+      (trade_name, company_name, cnpj, associate)
+    VALUES
+      (?, ?, ?, ?)
+  `;
   try {
-    const query = {
-      text: `
-      INSERT INTO company
-        (trade_name, company_name, cnpj, associate)
-      VALUES
-        ($1, $2, $3, $4) RETURNING *
-      `,
-      values: [
-        company.trade_name,
-        company.company_name,
-        company.cnpj,
-        company.associate
-      ],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as Company;
-  } finally {
-    client.release();
+    const [result] = await pool.execute<ResultSetHeader>(query, [
+      company.trade_name,
+      company.company_name,
+      company.cnpj,
+      company.associate
+    ]);
+
+    // Retornamos o objeto company com o novo ID inserido
+    return { ...company, id: result.insertId };
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getAllCompany() {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM company WHERE active = TRUE ORDER BY trade_name';
   try {
-    const query = {
-      text: 'SELECT * FROM company WHERE active = TRUE ORDER BY trade_name'
-    };
-    const { rows } = await client.query(query);
+    // Use pool.query para SELECTs simples sem parâmetros
+    const [rows] = await pool.query(query);
     return rows as unknown as Company[];
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getCompanyById(id: number) {
-  const client = await pool.connect();
+  const query = 'SELECT * FROM company WHERE id = ? AND active = TRUE';
   try {
-    const query = {
-      text: 'SELECT * FROM company WHERE id = ($1) AND active = TRUE',
-      values: [id],
-      rowMode: 'single'
-    };
-
-    const { rows } = await client.query(query);
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [id]);
     return rows[0] as unknown as Company;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function getCompanyByTradeName(trade_name: string) {
-  const client = await pool.connect();
+  // 'like' funciona, mas '%' deve vir no valor ou na string, aqui assumindo que trade_name já tem os wildcards ou é match exato
+  const query = 'SELECT * FROM company WHERE trade_name LIKE ?';
   try {
-    const query = {
-      text: 'SELECT * FROM company WHERE trade_name like $1',
-      values: [trade_name],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
+    const [rows] = await pool.execute<RowDataPacket[]>(query, [trade_name]);
     return rows[0] as unknown as Company;
-  } finally {
-    client.release();
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function associateCompany(id: number, associate: boolean) {
-  const client = await pool.connect();
+  const query = `
+    UPDATE company 
+      SET associate = ? 
+    WHERE id = ?
+  `;
   try {
-    const query = {
-      text: `
-      UPDATE company 
-        SET associate = $1 
-      WHERE id = $2
-      `,
-      values: [associate, id],
-      rowMode: 'single'
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [associate, id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function updateCompany(company: Company) {
-  const client = await pool.connect();
+  // Removemos o RETURNING *.
+  const query = `
+    UPDATE company 
+    SET trade_name = ?, company_name = ?, cnpj = ?, associate = ? 
+    WHERE id = ?
+  `;
   try {
-    const query = {
-      text: `
-      UPDATE company 
-      SET trade_name = $1, company_name = $2, cnpj = $3, associate = $4 
-      WHERE id = $5 RETURNING *
-      `,
-      values: [
-        company.trade_name,
-        company.company_name,
-        company.cnpj,
-        company.associate,
-        company.id
-      ],
-      rowMode: 'single'
-    };
-    const { rows } = await client.query(query);
-    return rows[0] as unknown as Company;
-  } finally {
-    client.release();
+    await pool.execute(query, [
+      company.trade_name,
+      company.company_name,
+      company.cnpj,
+      company.associate,
+      company.id
+    ]);
+
+    // Como já temos os dados atualizados no objeto 'company' recebido, retornamos ele mesmo.
+    return company;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function disableCompany(id: number) {
-  const client = await pool.connect();
+  // Booleans no MySQL são 0 (false) e 1 (true), mas o driver converte TRUE/FALSE automaticamente na query string geralmente.
+  // Para garantir, use 0 e 1 ou deixe o driver lidar.
+  const query = 'UPDATE company SET active = FALSE WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE company SET active = FALSE WHERE id = $1',
-      values: [id]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 export async function enableCompany(id: number) {
-  const client = await pool.connect();
+  const query = 'UPDATE company SET active = TRUE WHERE id = ?';
   try {
-    const query = {
-      text: 'UPDATE company SET active = TRUE WHERE id = $1',
-      values: [id]
-    };
-    await client.query(query);
-  } finally {
-    client.release();
+    await pool.execute(query, [id]);
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

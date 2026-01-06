@@ -9,7 +9,6 @@ import {
   getCompanyById,
   updateCompany
 } from '../repository/company';
-import { queryCuston } from '../repository/custom-query';
 import { createCompaniesBuildQuery } from '../util/query-builder';
 
 export async function createCompanyService(company: Company) {
@@ -49,9 +48,8 @@ export async function createCompaniesService(company: Company[]) {
     }
   }
   if (createCompanies.length === 0) return allCompanies;
-  const query = createCompaniesBuildQuery(createCompanies);
-  const { rows } = await queryCuston(query.text, []);
-  allCompanies.push(...rows);
+  const id_create = await createCompaniesBuildQuery(createCompanies);
+  allCompanies.push({ ...createCompanies, id: id_create });
   return allCompanies;
 }
 

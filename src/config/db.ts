@@ -1,16 +1,8 @@
-import { Pool } from 'pg';
-import { config } from 'dotenv';
+import mysql from 'mysql2/promise';
+import { env } from './env';
 
-config();
-const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT, DATABASE_URL } =
-  process.env;
-const pool = new Pool({
-  host: PGHOST,
-  user: PGUSER,
-  password: PGPASSWORD,
-  database: PGDATABASE,
-  port: Number(PGPORT),
-  connectionString: DATABASE_URL,
+const pool = mysql.createPool({
+  uri: env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }

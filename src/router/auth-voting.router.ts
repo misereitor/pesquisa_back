@@ -1,6 +1,6 @@
 import { Response, Request, Router } from 'express';
 import {
-  checkUserRegistred,
+  checkUserRegistered,
   confirmCode,
   createUserAndSendMessage
 } from '../services/auth-voting.service';
@@ -13,7 +13,7 @@ authVotingRouter.get(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { cpf } = req.params;
-      const userExist = await checkUserRegistred(cpf);
+      const userExist = await checkUserRegistered(cpf);
       res.status(200).json({ success: true, data: userExist });
     } catch (error: any) {
       if (error.statusCode) {

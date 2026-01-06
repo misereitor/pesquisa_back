@@ -9,7 +9,7 @@ import {
   updateCategory,
   disableCategory
 } from '../repository/category';
-import { queryCuston } from '../repository/custom-query';
+import { customQuery } from '../repository/custom-query';
 import { createAssociationCategoriesBuildQuery } from '../util/query-builder';
 import { createCompaniesService } from './company.service';
 
@@ -67,7 +67,7 @@ async function createCategoryExist(category: AssociationCompanyAndCategory[]) {
   if (association.length === 0) return;
   const queryCreateAssociation =
     createAssociationCategoriesBuildQuery(association);
-  await queryCuston(queryCreateAssociation.text, []);
+  await customQuery(queryCreateAssociation.text, []);
 }
 
 async function createCategoryNotExist(
@@ -96,7 +96,7 @@ async function createCategoryNotExist(
   if (association.length === 0) return;
   const queryCreateAssociation =
     createAssociationCategoriesBuildQuery(association);
-  await queryCuston(queryCreateAssociation.text, []);
+  await customQuery(queryCreateAssociation.text, []);
 }
 
 export async function getAllCategoryService() {
