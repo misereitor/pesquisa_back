@@ -16,6 +16,7 @@ import { createTokenUserVoting } from '../security/token-user-vote.security';
 import { AppError } from '../util/errorHandler';
 import { buildUpdateQuery } from '../util/query-builder';
 import { createCode, sendMessage } from './whatsapp-sms.service';
+import { toTitleCase } from '../util/string-utils';
 
 export async function checkUserRegistered(cpf: string) {
   const userVote = await getUserVoteFromCPF(cpf);
@@ -32,6 +33,11 @@ export async function checkUserRegistered(cpf: string) {
 
 export async function createUserAndSendMessage(user: UserVote) {
   schemaUserVote.parse(user);
+
+  if (user.name) {
+    user.name = toTitleCase(user.name);
+  }
+
   let userVote: UserVote;
   const checksUser = await checksUserExistsAndDataIsTrue(user);
   if (checksUser) {
