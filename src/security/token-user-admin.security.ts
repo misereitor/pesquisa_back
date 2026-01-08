@@ -1,17 +1,18 @@
 import { UserAdmin } from '../model/user-admin';
 import * as JWT from 'jsonwebtoken';
 
-const { SECRET_KEY_ADMIN } = process.env;
-
 export function createTokenUserAdmin(userAdmin: UserAdmin) {
   try {
+    const secret = process.env.SECRET_KEY_ADMIN;
+    if (!secret) throw new Error('SECRET_KEY_ADMIN is not defined');
+
     const token = JWT.sign(
       {
         id: userAdmin.id,
         username: userAdmin.username,
         roles: userAdmin.role
       },
-      SECRET_KEY_ADMIN as string,
+      secret,
       {
         expiresIn: '30d'
       }
@@ -30,10 +31,14 @@ type OpenToken = {
 
 export function openTokenUserAdmin(token: string | undefined) {
   try {
+    const secret = process.env.SECRET_KEY_ADMIN;
+    if (!secret) throw new Error('SECRET_KEY_ADMIN is not defined');
+
     const date = new Date();
     if (!token) throw new Error('Token invalid');
     const bearer = token.split(' ')[1];
-    const decoded = JWT.verify(bearer, SECRET_KEY_ADMIN as string);
+
+    const decoded = JWT.verify(bearer, secret);
     if (decoded === null) throw new Error('Token invalid');
     if (typeof decoded === 'string') throw new Error('Token invalid');
     if (date.getTime() > Number(decoded.exp) * 1000)

@@ -1,13 +1,14 @@
 import * as JWT from 'jsonwebtoken';
 
-const { SECRET_KEY_VOTING } = process.env;
-
 export function valideTokenUserVoteService(token: string | undefined) {
   try {
+    const secret = process.env.SECRET_KEY_VOTING;
+    if (!secret) throw new Error('SECRET_KEY_VOTING is not defined');
+
     if (!token) throw new Error('Token invalid');
     const date = new Date();
     const bearer = token.split(' ')[1];
-    const decoded = JWT.verify(bearer, SECRET_KEY_VOTING as string);
+    const decoded = JWT.verify(bearer, secret);
     if (decoded === null) throw new Error('Token invalid');
     if (typeof decoded === 'string') throw new Error('Token invalid');
     if (date.getTime() > Number(decoded.exp) * 1000)
@@ -19,7 +20,10 @@ export function valideTokenUserVoteService(token: string | undefined) {
 }
 
 export function createTokenUserVoting(phone: string, id: number) {
-  const token = JWT.sign({ phone, id }, SECRET_KEY_VOTING as string, {
+  const secret = process.env.SECRET_KEY_VOTING;
+  if (!secret) throw new Error('SECRET_KEY_VOTING is not defined');
+
+  const token = JWT.sign({ phone, id }, secret, {
     expiresIn: '24h'
   });
   return token;
