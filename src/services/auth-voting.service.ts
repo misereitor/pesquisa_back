@@ -21,8 +21,8 @@ import { toTitleCase } from '../util/string-utils';
 export async function checkUserRegistered(cpf: string) {
   const userVote = await getUserVoteFromCPF(cpf);
   if (userVote) {
-    // if (userVote.confirmed_vote)
-    //   throw new AppError('CPF já confirmou o voto', 404);
+    if (userVote.confirmed_vote)
+      throw new AppError('CPF já confirmou o voto', 403);
     const code = await createCode(userVote);
     await sendMessage(code, userVote.phone);
     await updateTrySendCode(userVote);
